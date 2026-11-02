@@ -78,6 +78,28 @@
       outline:none;
     }
     .blank input:focus{ border-color: rgba(122,162,255,.75); box-shadow: 0 0 0 3px rgba(122,162,255,.10); }
+    .blankActions{ display:inline-flex; gap:6px; margin-left:8px; vertical-align:middle; flex-wrap:wrap; }
+    .blankActions .btn{ padding:8px 11px; min-height:38px; }
+    @media (max-width:560px){
+      .blankActions{ display:flex; margin:8px 0 0; }
+      .blankActions .btn{ flex:1 1 120px; }
+    }
+    .questionTools{ display:flex; gap:7px; flex-wrap:wrap; align-items:center; margin-top:28px; padding-top:14px; border-top:1px solid var(--line); }
+    .quizQ, .item .q, .cardFace{ white-space:pre-wrap; overflow-wrap:anywhere; }
+    .favoriteOn{ color:#ffe28a; border-color:rgba(255,226,138,.8); background:rgba(255,198,90,.15); }
+    .timerBadge{ font-variant-numeric:tabular-nums; }
+    .timerDanger{ color:#fff; border-color:rgba(255,90,122,.8); background:rgba(255,90,122,.22); }
+    .settingsGrid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .settingCard{ border:1px solid var(--line); border-radius:14px; padding:14px; background:rgba(255,255,255,.025); }
+    .settingCard h3{ margin:0 0 8px; font-size:15px; }
+    .radioStack{ display:grid; gap:8px; margin-top:8px; }
+    .radioStack label,.switchRow{ display:flex; gap:9px; align-items:flex-start; color:var(--text); }
+    dialog{ width:min(560px,calc(100vw - 28px)); border:1px solid rgba(122,162,255,.55); border-radius:16px; color:#f4f7ff; background:#111a32; box-shadow:0 24px 90px rgba(0,0,0,.82); }
+    dialog::backdrop{ background:rgba(2,6,18,.86); backdrop-filter:blur(3px); }
+    dialog input, dialog select, dialog textarea{ color:#f4f7ff; background:#080f22; border-color:rgba(122,162,255,.48); }
+    dialog textarea::placeholder{ color:#8f9bb7; }
+    dialog .muted{ color:#b5bfd6; }
+    @media (max-width:720px){ .settingsGrid{ grid-template-columns:1fr; } }
 
     .small{ font-size:12px; color:var(--muted); }
     .kbd{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px;
@@ -159,10 +181,16 @@
     .btn.studyStrong{ border-color:rgba(122,162,255,.85); background:rgba(122,162,255,.22); }
     .btn.cardStrong{ border-color:rgba(50,210,150,.85); background:rgba(50,210,150,.20); }
     .btn.reviewStrong{ border-color:rgba(255,198,90,.85); background:rgba(255,198,90,.18); }
-    .enterLock{margin-top:10px;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,198,90,.45);color:var(--warn);background:rgba(255,198,90,.08)}
-    .choicePanel{display:grid;gap:8px;margin:12px 0}.choiceOption{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.035);cursor:pointer}.choiceOption:hover{background:rgba(255,255,255,.07)}
-    .choiceOption input{margin-top:4px}.studySummary{display:grid;gap:10px}.summaryNums{display:grid;grid-template-columns:repeat(4,minmax(90px,1fr));gap:8px}.summaryNums>div{padding:10px;border:1px solid var(--line);border-radius:12px;text-align:center}
-    .validationBox{margin-top:10px;white-space:pre-wrap}.validationBox.ok{color:var(--good)}.validationBox.warn{color:var(--warn)}
+    .toolbar{ display:grid; grid-template-columns:minmax(180px,1fr) minmax(140px,.5fr) minmax(150px,.55fr); gap:8px; margin:10px 0; }
+    .selectionBar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:8px 0 12px; }
+    .item{ border:1px solid var(--line); border-radius:14px; padding:12px; background:rgba(255,255,255,.025); }
+    .item .meta{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+    .actions{ display:flex; gap:6px; flex-wrap:wrap; }
+    .checkLabel{ display:flex; align-items:center; gap:8px; color:var(--text); margin:0 0 8px; font-size:13px; }
+    .toast{ position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:2000; width:min(520px,calc(100vw - 24px)); padding:12px 14px; border:1px solid rgba(122,162,255,.55); border-radius:14px; background:rgba(18,26,51,.98); box-shadow:0 18px 60px rgba(0,0,0,.45); display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .storageNotice{ margin-top:8px; font-size:12px; color:var(--muted); }
+    .modeSwitch{ margin-left:auto; }
+    @media (max-width:720px){ .toolbar{ grid-template-columns:1fr; } .modeSwitch{ margin-left:0; } }
   </style>
 </head>
 <body>
@@ -170,14 +198,17 @@
   <div class="row">
     <div class="title">暗記メーカー風：穴埋め（【】）入力問題システム</div>
     <div class="badge" id="countBadge">カード 0 枚</div>
-    <div class="badge" id="modeBadge">モード：問題作成</div>
+    <div class="badge" id="modeBadge">モード：学習</div>
+    <button class="btn modeSwitch" id="btnAppMode" type="button">作成者モードへ</button>
   </div>
+  <div class="storageNotice">保存先：この端末のブラウザ（端末間の自動同期はありません）</div>
   <div class="tabs" role="tablist" aria-label="tabs">
-    <div class="tab active" id="tab-edit" role="tab" tabindex="0">問題作成</div>
+    <div class="tab active creatorOnly" id="tab-edit" role="tab" tabindex="0">問題作成</div>
     <div class="tab" id="tab-study" role="tab" tabindex="0">学習</div>
     <div class="tab" id="tab-card" role="tab" tabindex="0">カード式</div>
     <div class="tab" id="tab-review" role="tab" tabindex="0">復習</div>
-    <div class="tab" id="tab-io" role="tab" tabindex="0">入出力</div>
+    <div class="tab creatorOnly" id="tab-io" role="tab" tabindex="0">データ管理</div>
+    <div class="tab" id="tab-settings" role="tab" tabindex="0">機能の変更</div>
     <div class="tab" id="tab-help" role="tab" tabindex="0">ヘルプ</div>
   </div>
 </header>
@@ -293,7 +324,22 @@
 
       <div class="panel">
         <h2>カード一覧</h2>
-        <div class="muted">クリックで編集、学習へ回せます。</div>
+        <div class="muted">検索・絞り込み・複数選択ができます。</div>
+        <div class="toolbar">
+          <input type="text" id="cardSearch" aria-label="カード検索" placeholder="問題文・答え・タグを検索" />
+          <select id="cardListFilter" aria-label="習熟度で絞り込み">
+            <option value="all">すべて</option><option value="0">未学習</option><option value="1">うろ覚え</option><option value="2">覚えた</option><option value="3">完璧</option>
+          </select>
+          <select id="cardListSort" aria-label="カードの並べ替え">
+            <option value="newest">登録が新しい順</option><option value="oldest">登録が古い順</option><option value="weak">習熟度が低い順</option><option value="last">最終学習が古い順</option>
+          </select>
+        </div>
+        <div class="selectionBar">
+          <button class="btn" id="btnSelectAll" type="button">表示中を全選択</button>
+          <button class="btn primary" id="btnStudySelected" type="button" disabled>選択したカードだけ学習</button>
+          <button class="btn danger" id="btnDeleteSelected" type="button" disabled>選択したカードを削除</button>
+          <span class="badge" id="selectedCount">選択 0 枚</span>
+        </div>
         <div class="divider"></div>
         <div class="list" id="cardList"></div>
       </div>
@@ -318,6 +364,7 @@
             <label for="studyFilter"></label><select id="studyFilter">
               <option value="all">すべて</option>
               <option value="tag">タグ指定</option>
+              <option value="favorite">お気に入り</option>
             </select>
           </div>
           <div style="min-width:180px;">
@@ -326,7 +373,7 @@
               <option value="all">すべて</option>
               <option value="0-2">弱いもの(0〜2)</option>
               <option value="0">未学習(0)</option>
-              <option value="1">うる覚え(1)</option>
+              <option value="1">うろ覚え(1)</option>
               <option value="2">覚えた(2)</option>
               <option value="3">完璧(3+)</option>
             </select>
@@ -349,15 +396,16 @@
            <button class="btn primary hidden" id="btnResume">続きから</button>
            <button class="btn" id="btnPrev" disabled>前へ</button>
            <button class="btn" id="btnNext" disabled>次へ</button>
-           <button class="btn" id="btnReveal" disabled>答え表示</button>
+           <button class="btn primary hidden" id="btnGrade" disabled>採点する</button>
+           <button class="btn hidden" id="btnReveal" disabled>答え表示</button>
+           <button class="btn" id="btnStudyWrong" disabled>間違えた問題だけ復習</button>
            <span class="badge" id="progressBadge">0 / 0</span>
-           <span class="badge" id="backupBadge">バックアップ未作成</span>
-           <label style="margin-left:8px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="soundToggle" checked> 効果音</label>
+           <span class="badge timerBadge hidden" id="timerBadge">残り 0秒</span>
+           <button class="btn" id="btnFullscreen" type="button">全画面表示</button>
          </div>
 
         <div class="divider"></div>
 
-        <div id="enterLockStatus" class="enterLock hidden" aria-live="polite"></div>
         <div class="quizBox" id="studyBox">
           <p class="quizQ muted">「開始」を押すと問題が出ます。</p>
         </div>
@@ -394,6 +442,7 @@
             <label for="cardFilter"></label><select id="cardFilter">
               <option value="all">すべて</option>
               <option value="tag">タグ指定</option>
+              <option value="favorite">お気に入り</option>
             </select>
           </div>
           <div style="min-width:180px;">
@@ -402,7 +451,7 @@
               <option value="all">すべて</option>
               <option value="0-2">弱いもの(0〜2)</option>
               <option value="0">未学習(0)</option>
-              <option value="1">うる覚え(1)</option>
+              <option value="1">うろ覚え(1)</option>
               <option value="2">覚えた(2)</option>
               <option value="3">完璧(3+)</option>
             </select>
@@ -474,21 +523,17 @@
   <section id="view-io" class="hidden">
     <div class="grid">
       <div class="panel">
-        <h2>エクスポート（JSON）</h2>
-        <div class="muted">カードをJSONで保存できます。</div>
+        <h2>バックアップ</h2>
+        <div class="muted">カード・学習ログ・設定を1つのJSONに保存します。</div>
         <div class="divider"></div>
+        <button class="btn primary" id="btnBackupNow" type="button">今すぐバックアップ</button>
+        <label for="backupFile">バックアップから復元</label>
+        <input type="file" id="backupFile" accept="application/json,.json" />
+        <button class="btn" id="btnRestoreBackup" type="button">選択したバックアップを復元</button>
+        <div class="divider"></div>
+        <h2>カードJSON（詳細）</h2>
         <button class="btn primary" id="btnExport">JSONを生成</button>
         <button class="btn" id="btnDownload" disabled>ダウンロード</button>
-        <div class="divider"></div>
-        <h2>自動バックアップ</h2>
-        <div class="muted">保存先フォルダーを選ぶと、そのフォルダーへ直接保存します。未指定・権限なし・非対応ブラウザーでは、通常のダウンロードとして保存します。</div>
-        <div class="row" style="margin-top:10px;">
-          <label style="display:flex;align-items:center;gap:8px;margin:0;"><input type="checkbox" id="autoBackupEnabled" checked> 自動バックアップを有効にする</label>
-          <button class="btn" id="btnChooseBackupFolder" type="button">保存先を選択</button>
-          <button class="btn" id="btnClearBackupFolder" type="button">保存先を解除</button>
-          <button class="btn" id="btnTestBackup" type="button">今すぐバックアップ</button>
-        </div>
-        <div id="backupFolderStatus" class="muted" style="margin-top:8px;">保存先：未指定（通常のダウンロード先）</div>
         <label>JSON</label>
         <label for="jsonOut"></label><textarea id="jsonOut" placeholder="ここにJSONが表示されます。"></textarea>
       </div>
@@ -500,11 +545,60 @@
         <label>JSON</label>
         <label for="jsonIn"></label><textarea id="jsonIn" placeholder='[{"text":"...【答】...","tags":["..."]}]'></textarea>
         <div class="row" style="margin-top:10px;">
-          <button class="btn" id="btnValidateImport">検証</button>
           <button class="btn primary" id="btnImport">取り込み</button>
           <button class="btn danger" id="btnReset">初期化（全部消す）</button>
         </div>
-        <div id="importValidation" class="validationBox muted">未検証</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="view-settings" class="hidden">
+    <div class="panel">
+      <h2>機能の変更</h2>
+      <div class="muted">学習中の操作、表示、効果音、制限時間をまとめて設定します。変更内容はこのブラウザに保存されます。</div>
+      <div class="divider"></div>
+      <div class="settingsGrid">
+        <div class="settingCard">
+          <h3>効果音設定</h3>
+          <label class="switchRow"><input type="checkbox" id="settingSound"> 正解・不正解の効果音を鳴らす</label>
+        </div>
+        <div class="settingCard">
+          <h3>採点後のEnterキー</h3>
+          <div class="radioStack">
+            <label><input type="radio" name="enterAfterGrade" value="next"> 必ず次の問題へ進む</label>
+            <label><input type="radio" name="enterAfterGrade" value="regrade"> 空欄の現在の内容を再採点する</label>
+          </div>
+        </div>
+        <div class="settingCard">
+          <h3>採点後の正解表示</h3>
+          <div class="radioStack">
+            <label><input type="radio" name="answerAfterGrade" value="small"> 採点結果の下に小さく正解を表示する</label>
+            <label><input type="radio" name="answerAfterGrade" value="button"> 「答え表示」ボタンを押したときだけ表示する</label>
+          </div>
+        </div>
+        <div class="settingCard">
+          <h3>制限時間モード</h3>
+          <label for="settingTimeLimit">1問あたりの時間</label>
+          <select id="settingTimeLimit">
+            <option value="0">使用しない</option><option value="10">10秒</option><option value="20">20秒</option><option value="30">30秒</option><option value="60">60秒</option><option value="120">120秒</option>
+          </select>
+          <div class="small muted" style="margin-top:8px">時間切れになると、その時点の入力内容で自動採点します。</div>
+        </div>
+        <div class="settingCard">
+          <h3>全画面表示</h3>
+          <button class="btn primary" id="btnFullscreenSettings" type="button">全画面表示を切り替える</button>
+          <div class="small muted" style="margin-top:8px">ブラウザが全画面APIに対応している場合に使用できます。</div>
+        </div>
+        <div class="settingCard">
+          <h3>問題報告</h3>
+          <div class="small muted">報告はこの端末に保存されます。公開先へ自動送信はされません。</div>
+          <div class="row" style="margin-top:8px">
+            <button class="btn" id="btnDownloadReports" type="button">報告をJSONで保存</button>
+            <button class="btn danger" id="btnClearReports" type="button">報告を全削除</button>
+            <span class="badge" id="reportCount">報告 0 件</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -536,15 +630,33 @@
     </div>
   </section>
 </main>
-
+<div id="undoToast" class="toast hidden" role="status" aria-live="polite">
+  <span id="undoMessage">カードを削除しました。</span>
+  <button class="btn primary" id="btnUndo" type="button">元に戻す</button>
+</div>
+<dialog id="reportDialog" aria-labelledby="reportTitle">
+  <form method="dialog" id="reportForm">
+    <h2 id="reportTitle">問題を報告</h2>
+    <div class="muted" id="reportCardInfo"></div>
+    <label for="reportReason">報告理由</label>
+    <select id="reportReason" required>
+      <option value="誤答・正解設定">誤答・正解設定</option><option value="問題文の誤り">問題文の誤り</option><option value="表記・誤字">表記・誤字</option><option value="判定方法">判定方法</option><option value="その他">その他</option>
+    </select>
+    <label for="reportDetail">詳しい内容</label>
+    <textarea id="reportDetail" rows="5" maxlength="1000" placeholder="どこを確認すべきか入力してください。"></textarea>
+    <div class="row" style="margin-top:12px;justify-content:flex-end">
+      <button class="btn" value="cancel" type="button" id="btnCancelReport">キャンセル</button>
+      <button class="btn primary" value="submit" type="submit">報告を保存</button>
+    </div>
+  </form>
+</dialog>
 <script>
 (() => {
   const LS_KEY = "ankimaker_like_cards_v1";
   const LS_LOG = "ankimaker_like_log_v1";
   const LS_SESSION = "ankimaker_like_session_v1";
-  const LS_BACKUP_AT = "ankimaker_like_backup_at_v1";
-  const LS_AUTO_BACKUP = "ankimaker_like_auto_backup_enabled_v1";
-  const BACKUP_DB = "ankimaker_like_backup_db_v1";
+  const LS_SETTINGS = "ankimaker_like_settings_v1";
+  const LS_REPORTS = "ankimaker_like_reports_v1";
   const $ = (id) => document.getElementById(id);
 
   const state = {
@@ -559,10 +671,15 @@
     gradingMode: "strict",
     isStudying: false, // ←これを追加
     studyEnterLockedUntil: 0,
-    studyAnswerStates: {},
-    sessionStats: {correct:0, wrong:0, skipped:0, revealed:0},
-    gradedSinceBackup: 0,
-    backupDirectoryHandle: null,
+    selectedCardIds: new Set(),
+    studyWrongIds: new Set(),
+    lastRemoved: null,
+    appMode: localStorage.getItem("ankimaker_app_mode_v1") || "learner",
+    settings: {sound:true, enterAfterGrade:"next", answerAfterGrade:"small", timeLimit:0},
+    reports: [],
+    reportCardId: null,
+    timerId: null,
+    timerRemaining: 0,
   };
 
   // ---------- Utilities ----------
@@ -610,7 +727,7 @@
   // Mastery helpers: 0..3 (3 means 3 or more)
   function masteryLabel(n){
     if(n <= 0) return '未学習(0)';
-    if(n === 1) return 'うる覚え(1)';
+    if(n === 1) return 'うろ覚え(1)';
     if(n === 2) return '覚えた(2)';
     return '完璧(3)';
   }
@@ -637,11 +754,11 @@
     o.stop(now + duration/1000);
   }
   function playCorrectSoundIfEnabled(){
-    if(document.getElementById('soundToggle') && !document.getElementById('soundToggle').checked) return;
+    if(!state.settings.sound) return;
     try{ beep(880, 160, 'sine', 0.08); beep(1320, 120, 'sine', 0.06); }catch(e){}
   }
   function playWrongSoundIfEnabled(){
-    if(document.getElementById('soundToggle') && !document.getElementById('soundToggle').checked) return;
+    if(!state.settings.sound) return;
     try{ beep(220, 200, 'sawtooth', 0.12); }catch(e){}
   }
 
@@ -665,7 +782,7 @@
     }
     // legend
     ctx.font = '12px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
-    const labels = ['未学習(0)','うる覚え(1)','覚えた(2)','完璧(3+)'];
+    const labels = ['未学習(0)','うろ覚え(1)','覚えた(2)','完璧(3+)'];
     for(let i=0;i<4;i++){
       const x = 8; const y = 8 + i*20;
       ctx.fillStyle = cols[i]; ctx.fillRect(x,y,12,12);
@@ -768,9 +885,10 @@
         changed = true;
       }
 
-      if(!card.gradingMode){ card.gradingMode = "strict"; changed = true; }
-      if(card.answerOrder !== "unordered"){ card.answerOrder = "ordered"; }
-      if(typeof card.explanation !== "string"){ card.explanation = ""; changed = true; }
+      if(!card.gradingMode){
+        card.gradingMode = "strict";
+        changed = true;
+      }
 
       if(typeof card.masterCount !== "number"){
         card.masterCount = 0;
@@ -842,8 +960,6 @@
       studyTag: $("studyTag").value,
       studyOrder: $("studyOrder").value,
       inputValues: getStudyInputValues(),
-      answerStates: state.studyAnswerStates,
-      sessionStats: state.sessionStats,
     };
     localStorage.setItem(LS_SESSION, JSON.stringify(session));
     updateStudyButtonsVisibility();
@@ -886,6 +1002,18 @@
     $("modeBadge").textContent = `モード：${label}`;
   }
 
+  function applyAppMode(){
+    const creator = state.appMode === "creator";
+    document.querySelectorAll(".creatorOnly").forEach(el => el.classList.toggle("hidden", !creator));
+    $("btnAppMode").textContent = creator ? "学習者モードへ" : "作成者モードへ";
+    $("btnAppMode").setAttribute("aria-pressed", creator ? "true" : "false");
+    if(!creator && (!views.edit.classList.contains("hidden") || !views.io.classList.contains("hidden"))) activateTab("study");
+  }
+  $("btnAppMode").onclick = () => {
+    state.appMode = state.appMode === "creator" ? "learner" : "creator";
+    localStorage.setItem("ankimaker_app_mode_v1", state.appMode);
+    applyAppMode();
+  };
   // ---------- Tabs ----------
   const views = {
     edit: $("view-edit"),
@@ -893,10 +1021,11 @@
     card: $("view-card"),
     review: $("view-review"),
     io: $("view-io"),
+    settings: $("view-settings"),
     help: $("view-help"),
   };
   function activateTab(which){
-    ["tab-edit","tab-study","tab-card","tab-review","tab-io","tab-help"].forEach(id => $(id).classList.remove("active"));
+    ["tab-edit","tab-study","tab-card","tab-review","tab-io","tab-settings","tab-help"].forEach(id => $(id).classList.remove("active"));
     Object.values(views).forEach(v => v.classList.add("hidden"));
 
     if(which === "edit"){
@@ -916,11 +1045,14 @@
       views.review.classList.remove("hidden");
       setModeLabel("復習");
       updateReviewStats();
-  updateBackupBadge();
     }else if(which === "io"){
       $("tab-io").classList.add("active");
       views.io.classList.remove("hidden");
       setModeLabel("入出力");
+    }else if(which === "settings"){
+      $("tab-settings").classList.add("active");
+      views.settings.classList.remove("hidden");
+      setModeLabel("機能の変更");
     }else{
       $("tab-help").classList.add("active");
       views.help.classList.remove("hidden");
@@ -932,6 +1064,7 @@
    $("tab-card").onclick = () => activateTab("card");
    $("tab-review").onclick = () => activateTab("review");
    $("tab-io").onclick = () => activateTab("io");
+   $("tab-settings").onclick = () => activateTab("settings");
    $("tab-help").onclick = () => activateTab("help");
 
    // Study buttons visibility management
@@ -942,98 +1075,62 @@
   }
 
   // ---------- Render list ----------
+  function getVisibleCards(){
+    const query = (($("cardSearch") && $("cardSearch").value) || "").trim().toLowerCase();
+    const filter = ($("cardListFilter") && $("cardListFilter").value) || "all";
+    const sort = ($("cardListSort") && $("cardListSort").value) || "newest";
+    let cards = state.cards.filter(card => {
+      const hay = [card.text, ...(card.tags || []), card.id].join(" ").toLowerCase();
+      const matchesQuery = !query || hay.includes(query);
+      const mastery = Math.min(3, Math.max(0, card.masterCount || 0));
+      return matchesQuery && (filter === "all" || mastery === Number(filter));
+    });
+    cards.sort((a,b) => {
+      if(sort === "oldest") return new Date(a.createdAt)-new Date(b.createdAt);
+      if(sort === "weak") return (a.masterCount||0)-(b.masterCount||0) || new Date(a.createdAt)-new Date(b.createdAt);
+      if(sort === "last") return (a.lastStudiedAt ? new Date(a.lastStudiedAt).getTime() : 0) - (b.lastStudiedAt ? new Date(b.lastStudiedAt).getTime() : 0);
+      return new Date(b.createdAt)-new Date(a.createdAt);
+    });
+    return cards;
+  }
+  function updateSelectionUI(){
+    for(const id of Array.from(state.selectedCardIds)) if(!state.cards.some(c => c.id === id)) state.selectedCardIds.delete(id);
+    const n = state.selectedCardIds.size;
+    if($("selectedCount")) $("selectedCount").textContent = `選択 ${n} 枚`;
+    if($("btnStudySelected")) $("btnStudySelected").disabled = n === 0;
+    if($("btnDeleteSelected")) $("btnDeleteSelected").disabled = n === 0;
+  }
   function renderList(){
     const root = $("cardList");
     root.innerHTML = "";
-    if(state.cards.length === 0){
-      const div = document.createElement("div");
-      div.className = "muted";
-      div.textContent = "まだカードがありません。左で【】付きの文を追加してください。";
-      root.appendChild(div);
-      return;
+    const cards = getVisibleCards();
+    if(cards.length === 0){
+      const div = document.createElement("div"); div.className = "muted";
+      div.textContent = state.cards.length ? "条件に一致するカードがありません。" : "まだカードがありません。左で【】付きの文を追加してください。";
+      root.appendChild(div); updateSelectionUI(); return;
     }
-    state.cards.slice().reverse().forEach(card => {
-      const item = document.createElement("div");
-      item.className = "item";
-
-      const meta = document.createElement("div");
-      meta.className = "meta";
-
+    cards.forEach(card => {
+      const item = document.createElement("div"); item.className = "item";
+      const checkLabel = document.createElement("label"); checkLabel.className = "checkLabel";
+      const check = document.createElement("input"); check.type = "checkbox"; check.checked = state.selectedCardIds.has(card.id);
+      check.addEventListener("change", () => { check.checked ? state.selectedCardIds.add(card.id) : state.selectedCardIds.delete(card.id); updateSelectionUI(); });
+      checkLabel.append(check, document.createTextNode("このカードを選択")); item.appendChild(checkLabel);
+      const meta = document.createElement("div"); meta.className = "meta";
       const left = document.createElement("div");
-      left.innerHTML = `<div class="id">ID: ${card.id}</div>
-                        <div class="small">作成: ${new Date(card.createdAt).toLocaleString()}</div>`;
-      const right = document.createElement("div");
-      right.className = "actions";
-
-      const btnEdit = document.createElement("button");
-      btnEdit.className = "btn";
-      btnEdit.textContent = "読み込み";
-      btnEdit.onclick = () => loadToEditor(card.id);
-
-      const btnInc = document.createElement("button");
-      btnInc.className = "btn good";
-      btnInc.textContent = "+習熟";
-      btnInc.title = '習熟度を上げる';
-      btnInc.onclick = () => { card.masterCount = Math.min((card.masterCount||0)+1, 3); save(); drawMasteryChart(); };
-
-      const btnDec = document.createElement("button");
-      btnDec.className = "btn warn";
-      btnDec.textContent = "-習熟";
-      btnDec.title = '習熟度を下げる';
-      btnDec.onclick = () => { card.masterCount = Math.max((card.masterCount||0)-1, 0); save(); drawMasteryChart(); };
-
-      const btnReset = document.createElement("button");
-      btnReset.className = "btn";
-      btnReset.textContent = "リセット";
-      btnReset.title = '習熟度を0にリセット';
-      btnReset.onclick = () => { card.masterCount = 0; save(); drawMasteryChart(); };
-
-      const btnDel = document.createElement("button");
-      btnDel.className = "btn danger";
-      btnDel.textContent = "削除";
-      btnDel.onclick = () => removeCard(card.id);
-
-      right.appendChild(btnEdit);
-      right.appendChild(btnInc);
-      right.appendChild(btnDec);
-      right.appendChild(btnReset);
-      right.appendChild(btnDel);
-
-      meta.appendChild(left);
-      meta.appendChild(right);
-
-      const q = document.createElement("div");
-      q.className = "q";
-      q.innerHTML = escapeHtml(card.text).replace(/【[^】]+】/g, (m)=>`<code>${escapeHtml(m)}</code>`);
-
-      const tagRow = document.createElement("div");
-      tagRow.className = "row";
-      tagRow.style.marginTop = "10px";
-      (card.tags || []).slice(0,8).forEach(t => {
-        const p = document.createElement("span");
-        p.className = "pill";
-        p.textContent = t;
-        tagRow.appendChild(p);
-      });
-
-      // mastery pill
-      const mRow = document.createElement('div');
-      mRow.className = 'row';
-      mRow.style.marginTop = '8px';
-      const mPill = document.createElement('span');
-      mPill.className = 'pill';
-      const mc = card.masterCount || 0;
-      mPill.textContent = `${masteryLabel(mc)} / 最終: ${formatLastStudied(card)} `;
-      mRow.appendChild(mPill);
-
-      item.appendChild(meta);
-      item.appendChild(q);
-      item.appendChild(mRow);
-      if((card.tags||[]).length) item.appendChild(tagRow);
-      root.appendChild(item);
+      const idLine = document.createElement("div"); idLine.className="id"; idLine.textContent=`ID: ${card.id}`;
+      const dateLine = document.createElement("div"); dateLine.className="small"; dateLine.textContent=`作成: ${new Date(card.createdAt).toLocaleString()}`;
+      left.append(idLine,dateLine);
+      const right = document.createElement("div"); right.className="actions";
+      [["読み込み","btn",()=>loadToEditor(card.id)],["+習熟","btn good",()=>{card.masterCount=Math.min((card.masterCount||0)+1,3);save();}],["-習熟","btn warn",()=>{card.masterCount=Math.max((card.masterCount||0)-1,0);save();}],["リセット","btn",()=>{card.masterCount=0;save();}],["削除","btn danger",()=>removeCard(card.id)]].forEach(([text,cls,fn])=>{const b=document.createElement("button");b.type="button";b.className=cls;b.textContent=text;b.onclick=fn;right.appendChild(b);});
+      meta.append(left,right);
+      const q=document.createElement("div");q.className="q";q.innerHTML=escapeHtml(card.text).replace(/【[^】]+】/g,m=>`<code>${escapeHtml(m)}</code>`);
+      const mRow=document.createElement("div");mRow.className="row";mRow.style.marginTop="8px";
+      const mPill=document.createElement("span");mPill.className="pill";mPill.textContent=`${masteryLabel(card.masterCount||0)} / 最終: ${formatLastStudied(card)}`;mRow.appendChild(mPill);
+      const tagRow=document.createElement("div");tagRow.className="row";tagRow.style.marginTop="10px";(card.tags||[]).slice(0,8).forEach(t=>{const p=document.createElement("span");p.className="pill";p.textContent=t;tagRow.appendChild(p);});
+      item.append(meta,q,mRow); if((card.tags||[]).length)item.appendChild(tagRow); root.appendChild(item);
     });
+    updateSelectionUI();
   }
-
   function escapeHtml(s){
     return (s ?? "").toString()
       .replaceAll("&","&amp;")
@@ -1043,6 +1140,10 @@
       .replaceAll("'","&#039;");
   }
 
+  ["cardSearch","cardListFilter","cardListSort"].forEach(id => { $(id).addEventListener("input", renderList); $(id).addEventListener("change", renderList); });
+  $("btnSelectAll").onclick = () => { const visible=getVisibleCards(); const all=visible.every(c=>state.selectedCardIds.has(c.id)); visible.forEach(c=>all?state.selectedCardIds.delete(c.id):state.selectedCardIds.add(c.id)); renderList(); };
+  $("btnStudySelected").onclick = () => { const cards=state.cards.filter(c=>state.selectedCardIds.has(c.id)); if(!cards.length)return; state.studyQueue=cards;state.studyIndex=0;state.revealed=false;state.studyWrongIds.clear();activateTab("study");renderStudy();state.isStudying=true;updateStartEndButton(); };
+  $("btnDeleteSelected").onclick = () => { const ids=Array.from(state.selectedCardIds); if(!ids.length)return; if(!confirm(`${ids.length}枚のカードを削除しますか？`))return; const removed=[];const indexes=[];ids.map(id=>state.cards.findIndex(c=>c.id===id)).filter(i=>i>=0).sort((a,b)=>b-a).forEach(i=>{indexes.unshift(i);removed.unshift(state.cards.splice(i,1)[0]);});state.lastRemoved={cards:removed,indexes};state.selectedCardIds.clear();save();showUndo(`${removed.length}枚のカードを削除しました。`); };
   // ---------- Editor actions ----------
   function loadToEditor(id){
     const c = state.cards.find(x => x.id === id);
@@ -1055,14 +1156,21 @@
     logLine(`カードを読み込み: ${id}`);
   }
 
-  function removeCard(id){
-    const idx = state.cards.findIndex(x => x.id === id);
-    if(idx < 0) return;
-    state.cards.splice(idx, 1);
-    if(state.selectedId === id) state.selectedId = null;
-    save();
-    logLine(`カード削除: ${id}`);
+  let undoTimer = null;
+  function showUndo(message){
+    $("undoMessage").textContent = message; $("undoToast").classList.remove("hidden");
+    clearTimeout(undoTimer); undoTimer = setTimeout(() => { $("undoToast").classList.add("hidden"); state.lastRemoved = null; }, 7000);
   }
+  function removeCard(id){
+    const idx = state.cards.findIndex(x => x.id === id); if(idx < 0) return;
+    const removed = state.cards.splice(idx,1)[0]; state.lastRemoved = {cards:[removed], indexes:[idx]}; state.selectedCardIds.delete(id);
+    if(state.selectedId === id) state.selectedId = null; save(); logLine(`カード削除: ${id}`); showUndo("カードを削除しました。");
+  }
+  $("btnUndo").onclick = () => {
+    if(!state.lastRemoved) return;
+    state.lastRemoved.cards.forEach((card,i) => state.cards.splice(Math.min(state.lastRemoved.indexes[i],state.cards.length),0,card));
+    state.lastRemoved=null; clearTimeout(undoTimer); $("undoToast").classList.add("hidden"); save(); logLine("削除を元に戻しました");
+  };
 
   function addCard(){
     const text = $("editorText").value.trim();
@@ -1262,24 +1370,6 @@
   });
 
    // ---------- Study ----------
-   function currentCardState(){ const c=state.studyQueue[state.studyIndex]; return c ? state.studyAnswerStates[c.id] : null; }
-   function captureCurrentState(status){
-     const c=state.studyQueue[state.studyIndex]; if(!c) return;
-     const old=state.studyAnswerStates[c.id] || {};
-     state.studyAnswerStates[c.id]={...old,inputValues:getStudyInputValues(),revealed:state.revealed,status:status||old.status||"unanswered",resultHtml:$("studyResult")?$("studyResult").innerHTML:"",resultClass:$("studyResult")?$("studyResult").className:"result muted"};
-   }
-   function restoreCardState(card){
-     const st=state.studyAnswerStates[card.id]; if(!st) return false;
-     applyStudyInputValues(st.inputValues||[]); state.revealed=!!st.revealed;
-     const r=$("studyResult"); if(r && st.resultHtml){r.innerHTML=st.resultHtml;r.className=st.resultClass||"result muted";}
-     if(state.revealed){ Array.from($("studyQuestion").querySelectorAll("input")).forEach(x=>x.disabled=true); }
-     return true;
-   }
-   function updateNextButtonLabel(){ const st=currentCardState(); $("btnNext").textContent = (!state.revealed && (!st || st.status==="unanswered")) ? "スキップして次へ" : "次へ"; }
-   function setEnterLock(ms=1500){
-     state.studyEnterLockedUntil=Date.now()+ms; const el=$("enterLockStatus"); if(!el)return; el.classList.remove("hidden");
-     const tick=()=>{const left=Math.max(0,state.studyEnterLockedUntil-Date.now()); if(left<=0){el.classList.add("hidden"); const q=$("studyQuestion"); if(q){const input=q.querySelector("input:not([disabled])"); (input||q).focus();} return;} el.textContent=`Enter入力待機中… ${(left/1000).toFixed(1)}秒`; setTimeout(tick,100);}; tick();
-   }
    function buildQueue(){
      let cards = state.cards.slice();
      const filter = $("studyFilter").value;
@@ -1290,6 +1380,8 @@
        }else{
          cards = [];
        }
+     }else if(filter === "favorite"){
+       cards = cards.filter(c => (c.tags||[]).includes("お気に入り"));
      }
      // mastery filter
      const mf = $("masteryFilter").value;
@@ -1313,8 +1405,7 @@
      state.studyQueue = cards;
      state.studyIndex = 0;
      state.revealed = false;
-     state.studyAnswerStates = {};
-     state.sessionStats = {correct:0, wrong:0, skipped:0, revealed:0};
+     state.studyWrongIds.clear();
      $("progressBadge").textContent = `${Math.min(state.studyIndex+1, state.studyQueue.length)} / ${state.studyQueue.length}`;
      drawMasteryChart();
      clearSession();
@@ -1329,6 +1420,7 @@
       $("btnPrev").disabled = true;
       $("btnNext").disabled = true;
       $("btnReveal").disabled = true;
+      $("btnGrade").disabled = true;
       return;
     }
     const card = state.studyQueue[state.studyIndex];
@@ -1337,9 +1429,13 @@
       $("btnPrev").disabled = state.studyIndex <= 0;
       $("btnNext").disabled = true;
       $("btnReveal").disabled = true;
+      $("btnGrade").disabled = true;
+      $("btnStudyWrong").disabled = state.studyWrongIds.size === 0;
+      box.innerHTML = `<p class="quizQ muted">終了！お疲れさまでした。</p><button class="btn primary" type="button" id="finishWrong">間違えた問題だけ復習</button>`;
+      $("finishWrong").disabled = state.studyWrongIds.size === 0;
+      $("finishWrong").onclick = startWrongReview;
       return;
     }
-
     const parsed = parseCloze(card.text);
     const hasInputs = parsed.parts.some(part => part.type === "blank");
     const preserveReveal = options.preserveReveal === true;
@@ -1369,6 +1465,49 @@
       }
     });
 
+    if(hasInputs){
+      const actions = document.createElement("span");
+      actions.className = "blankActions";
+      actions.setAttribute("aria-label", "解答操作");
+
+      const gradeInline = document.createElement("button");
+      gradeInline.type = "button";
+      gradeInline.className = "btn primary";
+      gradeInline.id = "btnGradeInline";
+      gradeInline.textContent = isRevealed ? "再採点する" : "採点する";
+      gradeInline.disabled = false;
+      gradeInline.addEventListener("click", () => gradeCurrent(state.revealed));
+
+      actions.appendChild(gradeInline);
+      if(state.settings.answerAfterGrade === "button"){
+        const revealInline = document.createElement("button");
+        revealInline.type = "button";
+        revealInline.className = "btn";
+        revealInline.id = "btnRevealInline";
+        revealInline.textContent = "答え表示";
+        revealInline.disabled = isRevealed;
+        revealInline.addEventListener("click", revealCurrent);
+        actions.appendChild(revealInline);
+      }
+      q.appendChild(actions);
+    }
+
+    const questionTools = document.createElement("div");
+    questionTools.className = "questionTools";
+    const favoriteButton = document.createElement("button");
+    favoriteButton.type = "button";
+    favoriteButton.id = "btnFavoriteQuestion";
+    const isFavorite = (card.tags || []).includes("お気に入り");
+    favoriteButton.className = "btn" + (isFavorite ? " favoriteOn" : "");
+    favoriteButton.textContent = isFavorite ? "★ お気に入り解除" : "☆ お気に入り登録";
+    favoriteButton.addEventListener("click", () => toggleFavorite(card.id));
+    const reportButton = document.createElement("button");
+    reportButton.type = "button";
+    reportButton.className = "btn";
+    reportButton.textContent = "問題を報告";
+    reportButton.addEventListener("click", () => openReportDialog(card.id));
+    questionTools.append(favoriteButton, reportButton);
+
     box.appendChild(q);
 
     const row = document.createElement("div");
@@ -1390,6 +1529,7 @@
       result.textContent = "入力して Enter で採点。";
     }
     box.appendChild(result);
+    box.appendChild(questionTools);
 
     // Focus first input
     const first = q.querySelector("input");
@@ -1420,15 +1560,17 @@
     $("btnPrev").disabled = state.studyIndex <= 0;
     $("btnNext").disabled = false;
     $("btnReveal").disabled = !hasInputs || isRevealed;
+    $("btnGrade").disabled = !hasInputs || isRevealed;
+    $("btnStudyWrong").disabled = state.studyWrongIds.size === 0;
+    $("btnNext").textContent = isRevealed ? "次の問題" : "スキップ";
     $("progressBadge").textContent = `${state.studyIndex+1} / ${state.studyQueue.length}`;
 
     // セッション復元時は、入力値を反映してから保存する
-    if(Array.isArray(options.inputValues)) applyStudyInputValues(options.inputValues);
-    restoreCardState(card);
-    updateNextButtonLabel();
+    if(Array.isArray(options.inputValues)){
+      applyStudyInputValues(options.inputValues);
+    }
 
-    // 選択問題はクリック選択UIも表示する。
-    enhanceChoiceQuestion(card, q);
+    startQuestionTimer(isRevealed);
 
     // skipSave が明示された場合以外は保存する
     if(options.skipSave !== true){
@@ -1436,35 +1578,32 @@
     }
   }
 
-  function enhanceChoiceQuestion(card,q){
-    if(!(card.tags||[]).includes("選択問題")) return;
-    const lines=card.text.split(/\n/); const choices=[];
-    lines.forEach(line=>{const m=line.match(/^\s*([①-⑩0-9Ａ-ＺA-Zア-コ])(?:[.．、\s]+)(.+)$/); if(m) choices.push({id:m[1],text:m[2]});});
-    if(!choices.length) return;
-    const target=q.querySelector("input[data-blank-index]"); if(!target)return;
-    const wrap=target.closest(".blank"); if(wrap) wrap.style.display="none";
-    const panel=document.createElement("div"); panel.className="choicePanel";
-    const multi=card.answerOrder==="unordered";
-    choices.forEach(ch=>{const lab=document.createElement("label");lab.className="choiceOption";const ck=document.createElement("input");ck.type=multi?"checkbox":"radio";ck.name="choiceAnswer";ck.value=ch.id;const tx=document.createElement("span");tx.textContent=`${ch.id} ${ch.text}`;lab.append(ck,tx);panel.appendChild(lab);ck.addEventListener("change",()=>{const vals=Array.from(panel.querySelectorAll("input:checked")).map(x=>x.value);target.value=vals.join(",");captureCurrentState();saveSession();});});
-    q.before(panel);
-    const existing=normalize(target.value,"loose").split(/[・･、,，／/]+/).filter(Boolean); panel.querySelectorAll("input").forEach(x=>{x.checked=existing.includes(normalize(x.value,"loose"));});
-  }
   function handleStudyEnter(){
     if(Date.now() < state.studyEnterLockedUntil) return;
 
     if(state.revealed){
-      // 先にロックを設定し、次の問題を表示した直後のEnter入力を無視する。
-      setEnterLock(1500);
-      nextCard();
+      if(state.settings.enterAfterGrade === "regrade"){
+        gradeCurrent(true);
+      }else{
+        state.studyEnterLockedUntil = Date.now() + 1500;
+        nextCard();
+      }
       return;
     }
 
-    gradeCurrent();
+    gradeCurrent(false);
   }
 
-  function gradeCurrent(){
-    // 採点済みの問題を再採点しない。
-    if(state.revealed) return;
+  function setInlineAnswerButtonsDisabled(disabled){
+    const grade = $("btnGradeInline");
+    const reveal = $("btnRevealInline");
+    if(grade) grade.disabled = disabled;
+    if(reveal) reveal.disabled = disabled;
+  }
+
+  function gradeCurrent(forceRegrade = false){
+    if(state.revealed && !forceRegrade) return;
+    stopQuestionTimer();
 
     const card = state.studyQueue[state.studyIndex];
     if(!card) return;
@@ -1508,23 +1647,19 @@
     const all = okCount === inputs.length;
     const res = $("studyResult");
     res.className = "result " + (all ? "ok" : "ng");
-    res.innerHTML = all
-      ? `✅ 正解！（${okCount}/${inputs.length}）`
-      : `❌ 不正解（${okCount}/${inputs.length}）<div class="small" style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(detail.join("\n"))}</div>`;
+    const answerDetails = `<div class="small" style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(detail.join("\n"))}</div>`;
+    res.innerHTML = (all ? `✅ 正解！（${okCount}/${inputs.length}）` : `❌ 不正解（${okCount}/${inputs.length}）`)
+      + (state.settings.answerAfterGrade === "small" ? answerDetails : `<div class="small muted" style="margin-top:6px">正解は「答え表示」で確認できます。</div>`);
 
-     if(!all){
-       const missing=[]; const extra=[];
-       if(card.answerOrder==="unordered" && inputs[0]){ const exp=normalize(parsed.answers[0][0],"loose").split(/[・･、,，／/]+/).filter(Boolean); const act=splitUnorderedAnswer(inputs[0].value,exp.length); exp.forEach(x=>{if(!act.includes(x))missing.push(x)}); act.forEach(x=>{if(!exp.includes(x))extra.push(x)}); if(missing.length||extra.length) res.innerHTML += `<div class="small">選び忘れ: ${escapeHtml(missing.join("・")||"なし")} / 余分: ${escapeHtml(extra.join("・")||"なし")}</div>`; }
-       res.innerHTML += `<div style="margin-top:8px"><button class="btn" id="btnRetry" type="button">もう一度回答</button></div>`;
-     }
-     if(card.explanation) res.innerHTML += `<div class="small" style="margin-top:8px;white-space:pre-wrap"><b>解説</b>\n${escapeHtml(card.explanation)}</div>`;
      logLine(`採点: ${all ? "正解" : "不正解"} / ID=${card.id} / ${okCount}/${inputs.length}`);
 
      // adjust mastery
      if(all){
+       state.studyWrongIds.delete(card.id);
        card.masterCount = Math.min((card.masterCount||0) + 1, 3);
        playCorrectSoundIfEnabled();
      }else{
+       state.studyWrongIds.add(card.id);
        card.masterCount = Math.max((card.masterCount||0) - 1, 0);
        playWrongSoundIfEnabled();
      }
@@ -1533,16 +1668,24 @@
      drawMasteryChart();
 
      $("btnNext").disabled = false;
-     $("btnReveal").disabled = true;
+     const manualAnswer = state.settings.answerAfterGrade === "button";
+     $("btnReveal").disabled = !manualAnswer;
+     $("btnGrade").disabled = false;
+     setInlineAnswerButtonsDisabled(false);
+     const inlineGrade = $("btnGradeInline");
+     if(inlineGrade){
+       inlineGrade.disabled = false;
+       inlineGrade.textContent = "再採点する";
+     }
+     const inlineReveal = $("btnRevealInline"); if(inlineReveal) inlineReveal.disabled = !manualAnswer;
+     $("btnStudyWrong").disabled = state.studyWrongIds.size === 0;
+     $("btnNext").textContent = "次の問題";
      state.revealed = true;
-     state.sessionStats[all?"correct":"wrong"]++;
-     state.gradedSinceBackup++;
-     captureCurrentState(all?"correct":"wrong");
-     const retry=$("btnRetry"); if(retry) retry.onclick=()=>{state.revealed=false; inputs.forEach(x=>{x.disabled=false;x.style.borderColor="";x.style.boxShadow="";}); res.className="result muted";res.textContent="もう一度入力して Enter で採点。";captureCurrentState("retry");updateNextButtonLabel();};
-     updateNextButtonLabel(); maybeAutoBackup(); saveSession();
+     saveSession();
    }
 
   function revealCurrent(){
+    stopQuestionTimer();
     const card = state.studyQueue[state.studyIndex];
     if(!card) return;
     const parsed = parseCloze(card.text);
@@ -1551,7 +1694,7 @@
     inputs.forEach(inp => {
       const idx = Number(inp.dataset.blankIndex);
       const acc = parsed.answers[idx] || [];
-      if(!inp.value) inp.value = acc[0] || "";
+      inp.value = acc[0] || "";
       inp.style.borderColor = "rgba(255,198,90,.8)";
       inp.style.boxShadow = "0 0 0 3px rgba(255,198,90,.10)";
     });
@@ -1565,19 +1708,24 @@
     markCardStudied(card, "study-reveal");
     save();
     state.revealed = true;
-    state.sessionStats.revealed++;
-    captureCurrentState("revealed");
     $("btnNext").disabled = false;
     $("btnReveal").disabled = true;
+    $("btnGrade").disabled = true;
+    setInlineAnswerButtonsDisabled(true);
+    $("btnNext").textContent = "次の問題";
     saveSession();
   }
-
+  function startWrongReview(){
+    const cards = state.cards.filter(c => state.studyWrongIds.has(c.id));
+    if(!cards.length){ alert("今回間違えた問題はありません。"); return; }
+    state.studyQueue=cards; state.studyIndex=0; state.revealed=false; state.studyWrongIds.clear(); renderStudy(); state.isStudying=true; updateStartEndButton(); logLine(`間違えた問題の復習開始: ${cards.length}枚`);
+  }
   function previousCard(){
     if(state.studyQueue.length === 0 || state.studyIndex <= 0) return;
-    captureCurrentState();
+
     state.studyIndex--;
     state.revealed = false;
-    setEnterLock(1500);
+    state.studyEnterLockedUntil = Date.now() + 1500;
     renderStudy();
     saveSession();
     logLine(`前の問題へ: ${state.studyIndex + 1}/${state.studyQueue.length}`);
@@ -1589,36 +1737,28 @@
 
     // 採点済みの場合は通常の「次へ」、未採点の場合だけスキップとして記録する。
     if(!state.revealed){
-      captureCurrentState("skipped"); state.sessionStats.skipped++;
       logLine(`スキップ: ID=${card.id}`);
-    }else captureCurrentState();
+    }
 
     // ボタン操作後に残ったEnter入力が次問を誤採点しないよう、同じ1.5秒ロックを適用する。
-    setEnterLock(1500);
+    state.studyEnterLockedUntil = Date.now() + 1500;
     nextCard();
   }
 
    function nextCard(){
-     captureCurrentState();
+     stopQuestionTimer();
      if(state.studyIndex < state.studyQueue.length - 1){
        state.studyIndex++;
        renderStudy();
        saveSession();
      }else{
        state.studyIndex++;
-       renderStudySummary();
+       renderStudy();
        logLine("学習終了");
-       saveSession();
+       clearSession();
      }
    }
 
-  function renderStudySummary(){
-    const st=state.sessionStats; const box=$("studyBox"); const wrongIds=Object.entries(state.studyAnswerStates).filter(([,v])=>v.status==="wrong").map(([id])=>id); const skipIds=Object.entries(state.studyAnswerStates).filter(([,v])=>v.status==="skipped").map(([id])=>id);
-    box.innerHTML=`<div class="studySummary"><h2>学習結果</h2><div class="summaryNums"><div>正解<br><b>${st.correct}</b></div><div>不正解<br><b>${st.wrong}</b></div><div>スキップ<br><b>${st.skipped}</b></div><div>答え表示<br><b>${st.revealed}</b></div></div><div class="row"><button class="btn" id="reviewWrong">不正解だけ復習</button><button class="btn" id="reviewSkipped">スキップだけ復習</button><button class="btn primary" id="reviewBoth">不正解＋スキップ</button></div></div>`;
-    $("btnPrev").disabled=state.studyQueue.length===0;$("btnNext").disabled=true;$("btnReveal").disabled=true;
-    const restart=ids=>{const set=new Set(ids);state.studyQueue=state.cards.filter(c=>set.has(c.id));state.studyIndex=0;state.studyAnswerStates={};state.sessionStats={correct:0,wrong:0,skipped:0,revealed:0};state.revealed=false;renderStudy();saveSession();};
-    $("reviewWrong").onclick=()=>restart(wrongIds);$("reviewSkipped").onclick=()=>restart(skipIds);$("reviewBoth").onclick=()=>restart([...new Set([...wrongIds,...skipIds])]);
-  }
   $("btnStart").onclick = () => {
 
     // 学習中なら終了ボタンとして動く
@@ -1684,8 +1824,6 @@
      state.studyQueue = session.studyQueue;
      state.studyIndex = Math.min(session.studyIndex || 0, state.studyQueue.length - 1);
      state.revealed = session.revealed === true;
-     state.studyAnswerStates = session.answerStates || {};
-     state.sessionStats = session.sessionStats || {correct:0,wrong:0,skipped:0,revealed:0};
      state.studyEnterLockedUntil = 0;
      // 入力値を renderStudy 内で反映し、その後に保存する
      renderStudy({
@@ -1703,6 +1841,8 @@
    $("btnPrev").onclick = previousCard;
    $("btnNext").onclick = skipCurrent;
    $("btnReveal").onclick = revealCurrent;
+   $("btnGrade").onclick = () => gradeCurrent(state.revealed);
+   $("btnStudyWrong").onclick = startWrongReview;
 
   // ---------- Flashcard mode ----------
   function stripAnswersForFront(text){
@@ -1742,6 +1882,8 @@
     if(filter === "tag"){
       const tag = $("cardTag").value.trim();
       cards = tag ? cards.filter(c => (c.tags||[]).includes(tag)) : [];
+    }else if(filter === "favorite"){
+      cards = cards.filter(c => (c.tags||[]).includes("お気に入り"));
     }
     const mf = $("cardMasteryFilter").value;
     if(mf && mf !== "all"){
@@ -1958,34 +2100,54 @@
   bindClick("btnShowTutorial", () => showWelcomeTutorial());
 
   // ---------- IO ----------
-  function validateImportCards(arr){
-    const issues=[]; const ids=new Set(); if(!Array.isArray(arr)) return ["JSON最上位は配列である必要があります。"]; arr.forEach((c,i)=>{const n=i+1;if(!c||typeof c.text!=="string"){issues.push(`${n}: text がありません`);return;} if(c.id){if(ids.has(c.id))issues.push(`${n}: JSON内でID重複 ${c.id}`);ids.add(c.id);} const matches=[...c.text.matchAll(/【([^】]+)】/g)]; if(!matches.length)issues.push(`${n}: 【答え】がありません`); if(!["loose","strict",undefined].includes(c.gradingMode))issues.push(`${n}: gradingMode が不正`); if(!["ordered","unordered",undefined].includes(c.answerOrder))issues.push(`${n}: answerOrder が不正`); const answer=matches[0]?.[1]||""; const count=normalize(answer,"loose").split(/[・･、,，／/]+/).filter(Boolean).length; if(c.answerOrder==="unordered"&&count<2)issues.push(`${n}: unordered ですが複数回答ではありません`); if(/一つ選べ/.test(c.text)&&count>1)issues.push(`${n}: 「一つ選べ」ですが正解が複数です`); if(/すべて選べ|複数/.test(c.text)&&count>1&&c.answerOrder!=="unordered")issues.push(`${n}: 複数回答に answerOrder: unordered がありません`);}); return issues;
+  function loadFeatureSettings(){
+    try{ state.settings = {...state.settings, ...JSON.parse(localStorage.getItem(LS_SETTINGS) || "{}")}; }catch{}
+    try{ state.reports = JSON.parse(localStorage.getItem(LS_REPORTS) || "[]"); if(!Array.isArray(state.reports)) state.reports=[]; }catch{ state.reports=[]; }
+    $("settingSound").checked = !!state.settings.sound;
+    const enter = document.querySelector(`input[name="enterAfterGrade"][value="${state.settings.enterAfterGrade}"]`); if(enter) enter.checked=true;
+    const answer = document.querySelector(`input[name="answerAfterGrade"][value="${state.settings.answerAfterGrade}"]`); if(answer) answer.checked=true;
+    $("settingTimeLimit").value = String(state.settings.timeLimit || 0);
+    updateReportCount();
   }
-  function openBackupDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(BACKUP_DB,1);req.onupgradeneeded=()=>req.result.createObjectStore("handles");req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
-  async function storeBackupHandle(handle){const db=await openBackupDb();return new Promise((resolve,reject)=>{const tx=db.transaction("handles","readwrite");tx.objectStore("handles").put(handle,"directory");tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);});}
-  async function loadBackupHandle(){try{const db=await openBackupDb();return await new Promise((resolve,reject)=>{const tx=db.transaction("handles","readonly");const req=tx.objectStore("handles").get("directory");req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});}catch(e){return null;}}
-  async function clearStoredBackupHandle(){try{const db=await openBackupDb();await new Promise((resolve,reject)=>{const tx=db.transaction("handles","readwrite");tx.objectStore("handles").delete("directory");tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}catch(e){} state.backupDirectoryHandle=null;updateBackupFolderStatus();}
-  function normalDownload(json,fileName){const blob=new Blob([json],{type:"application/json"});const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download=fileName;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
-  async function directoryWritable(handle){if(!handle)return false;try{return (await handle.queryPermission({mode:"readwrite"}))==="granted";}catch(e){return false;}}
-  async function downloadBackup(prefix="cards_backup"){
-    const json=JSON.stringify(state.cards,null,2);const fileName=`${prefix}_${new Date().toISOString().replace(/[:.]/g,"-")}.json`;let savedToFolder=false;
-    if(state.backupDirectoryHandle && await directoryWritable(state.backupDirectoryHandle)){
-      try{const fh=await state.backupDirectoryHandle.getFileHandle(fileName,{create:true});const w=await fh.createWritable();await w.write(json);await w.close();savedToFolder=true;}catch(e){savedToFolder=false;}
+  function saveFeatureSettings(){ localStorage.setItem(LS_SETTINGS, JSON.stringify(state.settings)); }
+  $("settingSound").addEventListener("change", e => { state.settings.sound=e.target.checked; saveFeatureSettings(); });
+  document.querySelectorAll('input[name="enterAfterGrade"]').forEach(el => el.addEventListener("change", e => { state.settings.enterAfterGrade=e.target.value; saveFeatureSettings(); }));
+  document.querySelectorAll('input[name="answerAfterGrade"]').forEach(el => el.addEventListener("change", e => {
+    state.settings.answerAfterGrade=e.target.value;
+    saveFeatureSettings();
+    if(state.isStudying && state.studyQueue[state.studyIndex]){
+      renderStudy({preserveReveal:true,inputValues:getStudyInputValues(),skipSave:true});
     }
-    if(!savedToFolder) normalDownload(json,fileName);
-    localStorage.setItem(LS_BACKUP_AT,now());updateBackupBadge();updateBackupFolderStatus();return savedToFolder;
+  }));
+  $("settingTimeLimit").addEventListener("change", e => { state.settings.timeLimit=Math.max(0,Number(e.target.value)||0); saveFeatureSettings(); if(state.isStudying) startQuestionTimer(state.revealed); });
+  function stopQuestionTimer(){ if(state.timerId){clearInterval(state.timerId);state.timerId=null;} $("timerBadge").classList.add("hidden"); }
+  function startQuestionTimer(alreadyRevealed=false){
+    stopQuestionTimer(); const seconds=Number(state.settings.timeLimit)||0;
+    if(seconds<=0 || alreadyRevealed || !state.studyQueue[state.studyIndex]) return;
+    state.timerRemaining=seconds; const badge=$("timerBadge"); badge.classList.remove("hidden","timerDanger"); badge.textContent=`残り ${state.timerRemaining}秒`;
+    state.timerId=setInterval(()=>{ state.timerRemaining--; badge.textContent=`残り ${Math.max(0,state.timerRemaining)}秒`; badge.classList.toggle("timerDanger",state.timerRemaining<=5); if(state.timerRemaining<=0){stopQuestionTimer();gradeCurrent(false);}},1000);
   }
-  function updateBackupBadge(){const t=localStorage.getItem(LS_BACKUP_AT);$("backupBadge").textContent=t?`最終バックアップ: ${new Date(t).toLocaleString()}`:"バックアップ未作成";}
-  function updateBackupFolderStatus(){const el=$("backupFolderStatus");if(!el)return; if(!("showDirectoryPicker" in window)){el.textContent="保存先：フォルダー指定非対応（通常のダウンロード先）";return;}el.textContent=state.backupDirectoryHandle?`保存先：${state.backupDirectoryHandle.name}（ブラウザーが許可したフォルダー）`:"保存先：未指定（通常のダウンロード先）";}
-  async function maybeAutoBackup(){if(!$("autoBackupEnabled")?.checked)return;if(state.gradedSinceBackup>=25){await downloadBackup("cards_auto_backup");state.gradedSinceBackup=0;}}
+  async function toggleFullscreen(){
+    try{ if(!document.fullscreenElement){await document.documentElement.requestFullscreen();}else{await document.exitFullscreen();} }catch{alert("このブラウザでは全画面表示を開始できませんでした。");}
+  }
+  $("btnFullscreen").onclick=toggleFullscreen; $("btnFullscreenSettings").onclick=toggleFullscreen;
+  document.addEventListener("fullscreenchange",()=>{const text=document.fullscreenElement?"全画面を終了":"全画面表示";$("btnFullscreen").textContent=text;$("btnFullscreenSettings").textContent=text+"を切り替える";});
+  function toggleFavorite(cardId){
+    const card=state.cards.find(c=>c.id===cardId); if(!card)return; card.tags=Array.isArray(card.tags)?card.tags:[];
+    const i=card.tags.indexOf("お気に入り"); if(i>=0)card.tags.splice(i,1);else card.tags.push("お気に入り"); save(); renderStudy({preserveReveal:true,inputValues:getStudyInputValues(),skipSave:true});
+  }
+  function openReportDialog(cardId){ const card=state.cards.find(c=>c.id===cardId);if(!card)return;state.reportCardId=cardId;$("reportCardInfo").textContent=`カードID: ${cardId} / ${card.text.slice(0,120)}`;$("reportDetail").value="";$("reportDialog").showModal(); }
+  $("btnCancelReport").onclick=()=>$("reportDialog").close();
+  $("reportForm").addEventListener("submit",e=>{e.preventDefault();const card=state.cards.find(c=>c.id===state.reportCardId);if(!card)return;state.reports.push({id:`report_${Date.now()}`,cardId:card.id,cardText:card.text,reason:$("reportReason").value,detail:$("reportDetail").value.trim(),createdAt:now(),status:"未確認"});localStorage.setItem(LS_REPORTS,JSON.stringify(state.reports));updateReportCount();$("reportDialog").close();showUndo("問題報告をこの端末に保存しました。");});
+  function updateReportCount(){ $("reportCount").textContent=`報告 ${state.reports.length} 件`; }
+  $("btnDownloadReports").onclick=()=>{if(!state.reports.length){alert("保存された報告はありません。");return;}downloadJson({format:"ankimaker-reports-v1",exportedAt:now(),reports:state.reports},`problem_reports_${new Date().toISOString().slice(0,10)}.json`);};
+  $("btnClearReports").onclick=()=>{if(!state.reports.length)return;if(confirm(`${state.reports.length}件の報告を削除しますか？`)){state.reports=[];localStorage.removeItem(LS_REPORTS);updateReportCount();}};
+
+  function downloadJson(data,name){ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000); }
+  $("btnBackupNow").onclick = () => { const backup={format:"ankimaker-backup-v1",exportedAt:now(),cards:state.cards,log:localStorage.getItem(LS_LOG)||"",appMode:state.appMode,settings:state.settings,reports:state.reports};downloadJson(backup,`ankimaker_backup_${new Date().toISOString().slice(0,10)}.json`); };
+  $("btnRestoreBackup").onclick = async () => { const file=$("backupFile").files[0];if(!file){alert("バックアップファイルを選択してください。");return;}try{const data=JSON.parse(await file.text());if(data.format!=="ankimaker-backup-v1"||!Array.isArray(data.cards))throw new Error("対応するバックアップ形式ではありません");if(!confirm(`現在のデータを、${data.cards.length}枚のバックアップで置き換えますか？`))return;state.cards=data.cards;localStorage.setItem(LS_LOG,typeof data.log==="string"?data.log:"");$("logBox").textContent=typeof data.log==="string"?data.log:"";if(data.settings&&typeof data.settings==="object"){state.settings={...state.settings,...data.settings};saveFeatureSettings();}if(Array.isArray(data.reports)){state.reports=data.reports;localStorage.setItem(LS_REPORTS,JSON.stringify(state.reports));}ensureCardMetadata();save();loadFeatureSettings();alert("バックアップを復元しました。");}catch(e){alert("復元できませんでした。\n"+e.message);} };
   let lastBlobUrl = null;
-  $("autoBackupEnabled").checked=localStorage.getItem(LS_AUTO_BACKUP)!=="0";
-  $("autoBackupEnabled").onchange=()=>localStorage.setItem(LS_AUTO_BACKUP,$("autoBackupEnabled").checked?"1":"0");
-  $("btnChooseBackupFolder").onclick=async()=>{if(!("showDirectoryPicker" in window)){alert("このブラウザーでは保存先フォルダーを指定できません。通常のダウンロード先を使用します。");return;}try{const h=await window.showDirectoryPicker({id:"anki-backup",mode:"readwrite",startIn:"downloads"});const perm=await h.requestPermission({mode:"readwrite"});if(perm!=="granted")throw new Error("書き込みが許可されませんでした。");state.backupDirectoryHandle=h;await storeBackupHandle(h);updateBackupFolderStatus();}catch(e){if(e.name!=="AbortError")alert("保存先を設定できませんでした。\n"+e.message);}};
-  $("btnClearBackupFolder").onclick=clearStoredBackupHandle;
-  $("btnTestBackup").onclick=async()=>{await downloadBackup("cards_manual_backup");};
-  loadBackupHandle().then(h=>{state.backupDirectoryHandle=h;updateBackupFolderStatus();});
-  updateBackupFolderStatus();
+
   $("btnExport").onclick = () => {
     const json = JSON.stringify(state.cards, null, 2);
     $("jsonOut").value = json;
@@ -2004,8 +2166,7 @@
     a.click();
   };
 
-  $("btnValidateImport").onclick=()=>{try{const arr=JSON.parse($("jsonIn").value.trim());const issues=validateImportCards(arr);const box=$("importValidation");box.className="validationBox "+(issues.length?"warn":"ok");box.textContent=issues.length?`警告 ${issues.length}件\n${issues.join("\n")}`:"検証完了：問題は見つかりませんでした。";}catch(e){$("importValidation").className="validationBox warn";$("importValidation").textContent="JSON構文エラー: "+e.message;}};
-  $("btnImport").onclick = async () => {
+  $("btnImport").onclick = () => {
     const raw = $("jsonIn").value.trim();
     if(!raw){
       alert("JSONを貼り付けてください。");
@@ -2014,8 +2175,6 @@
     try{
       const arr = JSON.parse(raw);
       if(!Array.isArray(arr)) throw new Error("配列ではありません");
-      const issues=validateImportCards(arr); if(issues.length && !confirm(`警告が ${issues.length}件あります。続行しますか？\n\n${issues.slice(0,8).join("\n")}`)) return;
-      if(state.cards.length && $("autoBackupEnabled")?.checked) await downloadBackup("before_import");
       // Basic validation
       const added = [];
       arr.forEach(x => {
@@ -2029,11 +2188,7 @@
           updatedAt: now(),
           gradingMode: x.gradingMode || "strict",
           answerOrder: x.answerOrder === "unordered" ? "unordered" : "ordered",
-          explanation: typeof x.explanation === "string" ? x.explanation : "",
-          masterCount: typeof x.masterCount === 'number' ? x.masterCount : 0,
-          studyCount: typeof x.studyCount === "number" ? x.studyCount : 0,
-          lastStudiedAt: x.lastStudiedAt || null,
-          lastStudyMode: x.lastStudyMode || null
+          masterCount: typeof x.masterCount === 'number' ? x.masterCount : 0
         };
         const {answers} = parseCloze(card.text);
         if(answers.length === 0) return;
@@ -2064,8 +2219,11 @@
     }
   };
 
+  loadFeatureSettings();
   load();
   updateReviewStats();
+  applyAppMode();
+  if(state.appMode === "learner") activateTab("study");
 
   // UI更新
   updateStudyButtonsVisibility();
