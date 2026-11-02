@@ -1,6 +1,6 @@
 {
-  "version": 15,
-  "updatedAt": "2026-11-02T21:10:00+09:00",
+  "version": 16,
+  "updatedAt": "2026-11-02T21:40:00+09:00",
   "cards": [
     {
       "text": "南北戦争前、工業化の進んだアメリカ北部が求めた貿易政策は【保護関税政策】である。",
@@ -1266,6 +1266,283 @@
       "id": "2uq5kqum809ir19kyw",
       "createdAt": "2026-11-02T00:44:55.000Z",
       "updatedAt": "2026-11-02T21:10:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "カリフォルニアは1850年に【自由州】として州になった。",
+      "tags": [
+        "No21",
+        "第13章",
+        "南北戦争",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-d53b8d9f67775cfc",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "共和党は1854年に【奴隷制拡大反対】を掲げて結成された。",
+      "tags": [
+        "No21",
+        "第13章",
+        "南北戦争",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-9f64f973c8eefaa9",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "ホームステッド法は、公有地に5年間定住した開拓者へ【160エーカー】の土地を無償で与えた。",
+      "tags": [
+        "No21",
+        "第13章",
+        "南北戦争",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-e951e44d9cdece42",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "スエズ運河の建設を指導した人物は【レセップス】である。",
+      "tags": [
+        "No21",
+        "第15章",
+        "帝国主義",
+        "アフリカ分割",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-96ed5d8dd69c487c",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "19世紀のエジプトの支配者ムハンマド＝アリーは【スーダン】を支配した。",
+      "tags": [
+        "No21",
+        "第15章",
+        "帝国主義",
+        "アフリカ分割",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-79ec6481498f6357",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "ドイツがアフリカで獲得した植民地の一つは【カメルーン】である。",
+      "tags": [
+        "No21",
+        "第15章",
+        "帝国主義",
+        "アフリカ分割",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-414e218856a29764",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "イタリアはアドワの戦いで敗れ、【エチオピア】の併合に失敗した。",
+      "tags": [
+        "No21",
+        "第15章",
+        "帝国主義",
+        "アフリカ分割",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-a44b92bb6f0e8359",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "キューバを事実上アメリカの保護国とした条項は【プラット条項】である。",
+      "tags": [
+        "No21",
+        "第15章",
+        "帝国主義",
+        "米西戦争",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-68e917c737958d93",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "1899年に始まったフィリピンとアメリカの戦争を【米比戦争】という。",
+      "tags": [
+        "No21",
+        "第15章",
+        "帝国主義",
+        "米西戦争",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-f823bf98cc516f45",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "第一次バルカン戦争は、【イタリア＝トルコ戦争】でのオスマン帝国敗北に乗じて始まった。",
+      "tags": [
+        "No21",
+        "第16章",
+        "第一次世界大戦",
+        "バルカン",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-e4d0519a09fa6b1a",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "第一次世界大戦後、ハンガリーの領土を縮小した条約は【トリアノン条約】である。",
+      "tags": [
+        "No21",
+        "第16章",
+        "第一次世界大戦",
+        "東ヨーロッパ",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-9ae7419e1c21644b",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "第一次世界大戦後、旧ドイツ領の太平洋諸島のうち赤道以北は【日本】の委任統治領となった。",
+      "tags": [
+        "No21",
+        "第16章",
+        "第一次世界大戦",
+        "国際秩序",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-357a9ce22fe62b37",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "第一次世界大戦後、旧ドイツ領の太平洋諸島のうち赤道以南は【オーストラリア】の委任統治領となった。",
+      "tags": [
+        "No21",
+        "第16章",
+        "第一次世界大戦",
+        "国際秩序",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-59b2f471569541da",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
+      "masterCount": 0,
+      "studyCount": 0,
+      "lastStudiedAt": null,
+      "lastStudyMode": null,
+      "type": "short",
+      "sourceSet": "derived"
+    },
+    {
+      "text": "1930年のロンドン軍縮会議では【補助艦】の保有比率が定められた。",
+      "tags": [
+        "No21",
+        "第16章",
+        "第一次世界大戦",
+        "国際協調",
+        "短文問題"
+      ],
+      "gradingMode": "loose",
+      "id": "derived-pdf-d52255731805e710",
+      "createdAt": "2026-11-02T21:40:00+09:00",
+      "updatedAt": "2026-11-02T21:40:00+09:00",
       "masterCount": 0,
       "studyCount": 0,
       "lastStudiedAt": null,
