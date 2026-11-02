@@ -86,11 +86,6 @@
     }
     .questionTools{ display:flex; gap:7px; flex-wrap:wrap; align-items:center; margin-top:28px; padding-top:14px; border-top:1px solid var(--line); }
     .quizQ, .item .q, .cardFace{ white-space:pre-wrap; overflow-wrap:anywhere; }
-    .longProblemBox{ max-width:none; }
-    .longProblemBox .quizQ{ font-size:16px; line-height:1.95; max-height:62vh; overflow:auto; padding-right:8px; }
-    .typeBadge.short{ border-color:rgba(50,210,150,.50); color:#bff5df; }
-    .typeBadge.long{ border-color:rgba(255,198,90,.60); color:#ffe0a0; }
-    .longUnderline{ text-decoration-line:underline; text-decoration-color:#fff; text-decoration-thickness:3px; text-decoration-style:solid; text-underline-offset:4px; text-decoration-skip-ink:auto; }
     .favoriteOn{ color:#ffe28a; border-color:rgba(255,226,138,.8); background:rgba(255,198,90,.15); }
     .timerBadge{ font-variant-numeric:tabular-nums; }
     .timerDanger{ color:#fff; border-color:rgba(255,90,122,.8); background:rgba(255,90,122,.22); }
@@ -289,14 +284,6 @@
             <label>タグ（任意）</label>
             <label for="editorTags"></label><input type="text" id="editorTags" placeholder="例：生物, 循環器" />
           </div>
-          <div style="min-width:190px;">
-            <label>問題形式</label>
-            <label for="problemType"></label><select id="problemType">
-              <option value="short">短文問題</option>
-              <option value="long">長文問題</option>
-              <option value="all">すべて（重複時は長文を優先）</option>
-            </select>
-          </div>
           <div style="min-width:220px;">
             <label>採点オプション</label>
             <label for="gradingMode"></label><select id="gradingMode">
@@ -389,12 +376,12 @@
         <div class="divider"></div>
 
         <div class="row">
-          <div style="min-width:180px;">
-            <label>問題形式</label>
-            <label for="studyProblemType"></label><select id="studyProblemType">
-              <option value="short">短文問題</option>
-              <option value="long">長文問題</option>
-              <option value="all">すべて（重複時は長文を優先）</option>
+          <div style="min-width:190px;">
+            <label>問題の由来</label>
+            <label for="studySourceType"></label><select id="studySourceType">
+              <option value="all">すべての短文</option>
+              <option value="original">通常短文</option>
+              <option value="derived">プリント由来の短文</option>
             </select>
           </div>
           <div style="flex:1;">
@@ -467,9 +454,9 @@
   <section id="view-card" class="hidden">
     <div class="grid">
       <div class="panel">
-        <h2>カード式（短文問題専用・タップで裏面表示）</h2>
+        <h2>カード式（タップで裏面表示）</h2>
         <div class="muted">
-          長文問題はカード式には表示されません。長文問題は「学習」タブで問題形式を切り替えて取り組んでください。<br>
+          
           表面は問題文、裏面は答えです。カードをタップ/クリックすると、くるっと回って答えが見えます。<br>
           <span class="kbd">←</span> <span class="kbd">→</span> で前後移動、<span class="kbd">Space</span> または <span class="kbd">Enter</span> で表裏を切り替えられます。
         </div>
@@ -547,7 +534,7 @@
     <div class="grid"><div class="panel"><h2>復習（最後に解いた日から自動分類）</h2>
       <div class="muted">学習で採点した時、またはカード式で裏面を見た時に「最後に解いた日時」を記録します。<br>分類は <b>未学習</b> / <b>0〜1日前</b> / <b>2〜4日前</b> / <b>5日以上前</b> です。</div>
       <div class="divider"></div><div class="reviewGrid" id="reviewStats"></div><div class="divider"></div>
-      <div class="row"><div style="min-width:180px;"><label>問題形式</label><label for="reviewProblemType"></label><select id="reviewProblemType"><option value="short">短文問題</option><option value="long">長文問題</option><option value="all">すべて（重複時は長文を優先）</option></select></div><div style="flex:1;"><label>復習対象</label><label for="reviewBucket"></label><select id="reviewBucket"><option value="due">おすすめ（未学習 + 5日以上前）</option><option value="never">未学習</option><option value="0-1">0〜1日前</option><option value="2-4">2〜4日前</option><option value="5+">5日以上前</option><option value="all">すべて</option></select></div>
+      <div class="row"><div style="min-width:190px;"><label>問題の由来</label><label for="reviewSourceType"></label><select id="reviewSourceType"><option value="all">すべての短文</option><option value="original">通常短文</option><option value="derived">プリント由来の短文</option></select></div><div style="flex:1;"><label>復習対象</label><label for="reviewBucket"></label><select id="reviewBucket"><option value="due">おすすめ（未学習 + 5日以上前）</option><option value="never">未学習</option><option value="0-1">0〜1日前</option><option value="2-4">2〜4日前</option><option value="5+">5日以上前</option><option value="all">すべて</option></select></div>
       <div style="flex:1;"><label>タグ（任意）</label><label for="reviewTag"></label><input type="text" id="reviewTag" placeholder="例：ギリシア" /></div>
       <div style="min-width:180px;"><label>順番</label><label for="reviewOrder"></label><select id="reviewOrder"><option value="oldest">古い順</option><option value="shuffle">シャッフル</option><option value="inorder">登録順</option></select></div></div>
       <div class="row" style="margin-top:10px;"><button class="btn primary reviewStrong" id="btnReviewStudy">入力学習で復習</button><button class="btn primary reviewStrong" id="btnReviewCard">カード式で復習</button><button class="btn" id="btnReviewRefresh">集計更新</button><span class="badge" id="reviewSelectedCount">対象 0 枚</span></div>
@@ -653,8 +640,7 @@
         <p><code>【先史時代】とは、【文字】が発明される前の時代である。 #歴史概論 #時代区分</code></p>
         <p><b>Tab区切り：</b> 本文の後ろをTabで区切ると、タグをカンマ区切りで指定できます。</p>
         <p><code>約240万年前ごろに現れた【原人】は、【火】を使用した。　歴史概論, 人類の進化</code></p>
-        <p><b>問題形式：</b> 短文問題、長文問題、すべてを切り替えられます。「すべて」では短文と長文を混在出題し、同じ内容が重複する場合はPDFの形式を保った長文問題を優先します。カード式は短文問題専用です。</p>
-        <p><b>長文問題：</b> 問題作成時に「長文問題」を選び、文章・会話文・選択肢・設問を省略せず本文へ入力し、解答だけを【】で囲みます。</p>
+        <p><b>問題の由来：</b> 通常短文、プリント由来の短文、すべての短文を切り替えられます。</p>
         <p><b>カード式：</b> 表面に穴埋め化された問題文、裏面に答えを表示します。クリック/タップで表裏を切り替え、矢印ボタンやキーボードの左右キーで移動できます。</p>
         <p><b>復習：</b> 学習で採点した時、またはカード式で裏面を見た時に最終学習日時を記録し、未学習・0〜1日前・2〜4日前・5日以上前に分類して復習できます。</p>
         <p><button class="btn primary" id="btnShowTutorial" type="button">チュートリアルをもう一度見る</button></p>
@@ -695,9 +681,7 @@
   const LS_PUBLIC_VERSION = "ankimaker_public_questions_version_v1";
   const PUBLIC_DATA_URLS = {
     original: "./data/original-questions.json",
-    derived: "./data/derived-short-questions.json",
-    long: "./data/long-questions.json",
-    printOnly: "./data/print-only-questions.json"
+    derived: "./data/derived-short-questions.json"
   };
   const $ = (id) => document.getElementById(id);
 
@@ -748,22 +732,6 @@
 
   // Extract cloze answers from 【...】 segments
   // Inside bracket: "答1|別表記|syn" => acceptable answers list
-  function appendProblemText(parent, value){
-    const source = String(value || "");
-    const pattern = /\[\[underline:([\s\S]*?)\]\]/g;
-    let last = 0;
-    let match;
-    while((match = pattern.exec(source)) !== null){
-      if(match.index > last) parent.appendChild(document.createTextNode(source.slice(last, match.index)));
-      const underlined = document.createElement("span");
-      underlined.className = "longUnderline";
-      underlined.textContent = match[1];
-      parent.appendChild(underlined);
-      last = pattern.lastIndex;
-    }
-    if(last < source.length) parent.appendChild(document.createTextNode(source.slice(last)));
-  }
-
   function parseCloze(text){
     const answers = [];
     const parts = [];
@@ -943,7 +911,7 @@
         changed = true;
       }
 
-      if(card.type !== "long" && card.type !== "short"){
+      if(card.type !== "short"){
         card.type = "short";
         changed = true;
       }
@@ -977,7 +945,7 @@
       text: String(publicCard.text || ""),
       tags,
       source: "public",
-      type: publicCard.type === "long" ? "long" : "short",
+      type: "short",
       gradingMode: publicCard.gradingMode || "strict",
       answerOrder: publicCard.answerOrder || "ordered",
       duplicateOf: publicCard.duplicateOf || null,
@@ -996,61 +964,41 @@
     if(!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
     return response.json();
   }
-
-  function flattenLongGroups(groups){
-    const cards=[];
-    for(const group of groups || []){
-      if(!group || !group.sourceId || !Array.isArray(group.questions) || group.questions.length === 0) continue;
-      const questionBlocks = group.questions.map((question,index) => {
-        const label = question.questionNumber || `問${index+1}`;
-        return `${label}\n${question.text}`;
-      });
-      const fullText = [group.title || "長文問題", group.passage || "", ...questionBlocks].filter(Boolean).join("\n\n");
-      cards.push({
-        id:String(group.sourceId), type:"long", source:"public",
-        sourceId:String(group.sourceId),
-        groupTitle:group.title || group.source?.question || "長文問題",
-        passage:typeof group.passage === "string" ? group.passage : "",
-        text:fullText,
-        partIds:group.questions.map(question => String(question.id)),
-        tags:[...new Set([...(group.tags || []),"長文問題"])],
-        gradingMode:"loose", answerOrder:"ordered",
-        createdAt:group.createdAt || now(), updatedAt:group.updatedAt || now()
-      });
-    }
-    return cards;
-  }
-
   async function syncPublicQuestions(){
     const status = $("publicDataStatus");
     try{
-      const [originalData, derivedData, longData, printData] = await Promise.all([
-        fetchPublicJson(PUBLIC_DATA_URLS.original), fetchPublicJson(PUBLIC_DATA_URLS.derived),
-        fetchPublicJson(PUBLIC_DATA_URLS.long), fetchPublicJson(PUBLIC_DATA_URLS.printOnly)
+      const [originalData, derivedData] = await Promise.all([
+        fetchPublicJson(PUBLIC_DATA_URLS.original),
+        fetchPublicJson(PUBLIC_DATA_URLS.derived)
       ]);
       if(!Array.isArray(originalData.cards)) throw new Error("original-questions.json に cards 配列がありません");
       if(!Array.isArray(derivedData.cards)) throw new Error("derived-short-questions.json に cards 配列がありません");
-      if(!Array.isArray(longData.groups)) throw new Error("long-questions.json に groups 配列がありません");
-      const incoming=[...originalData.cards,...derivedData.cards,...flattenLongGroups(longData.groups)];
-      const ids=new Set();
+      const incoming = [
+        ...originalData.cards.map(card => ({...card, sourceSet:"original", type:"short"})),
+        ...derivedData.cards.map(card => ({...card, sourceSet:"derived", type:"short"}))
+      ];
+      const ids = new Set();
       for(const card of incoming){
         if(!card?.id || typeof card.text !== "string") throw new Error("idまたはtextがない公開問題があります");
-        const id=String(card.id); if(ids.has(id)) throw new Error(`問題IDが重複しています: ${id}`); ids.add(id);
+        const id=String(card.id);
+        if(ids.has(id)) throw new Error(`問題IDが重複しています: ${id}`);
+        ids.add(id);
       }
       const previousById=new Map(state.cards.map(card=>[String(card.id),card]));
       const publicCards=incoming.map(card=>publicCardForStorage(card,previousById.get(String(card.id))));
-      // Keep fields needed by long layout and all-mode precedence.
-      incoming.forEach((src,i)=>{ publicCards[i].passage=src.passage || ""; publicCards[i].groupTitle=src.groupTitle || ""; publicCards[i].partIds=src.partIds || []; publicCards[i].sourceId=src.sourceId || null; publicCards[i].derivedFromQuestionId=src.derivedFromQuestionId || src.derivedFrom || null; });
+      incoming.forEach((src,i)=>{ publicCards[i].sourceSet=src.sourceSet; });
       const localCards=state.cards.filter(card=>card.source !== "public" && !ids.has(String(card.id)));
-      state.cards=[...publicCards,...localCards]; ensureCardMetadata(); localStorage.setItem(LS_KEY,JSON.stringify(state.cards));
-      const version=Math.max(Number(originalData.version)||0,Number(derivedData.version)||0,Number(longData.version)||0);
+      state.cards=[...publicCards,...localCards];
+      ensureCardMetadata();
+      localStorage.setItem(LS_KEY,JSON.stringify(state.cards));
+      const version=Math.max(Number(originalData.version)||0,Number(derivedData.version)||0);
       localStorage.setItem(LS_PUBLIC_VERSION,String(version));
-      const printCount=Array.isArray(printData.items)?printData.items.length:0;
-      if(status) status.textContent=`公開問題 v${version} / 短文${originalData.cards.length+derivedData.cards.length}問・長文${publicCards.filter(c=>c.type==="long").length}問・プリント${printCount}問`;
+      if(status) status.textContent=`公開問題 v${version} / 短文${publicCards.length}問`;
       return {ok:true,version};
     }catch(error){
       if(status) status.textContent="公開問題の取得失敗・保存済みデータを使用";
-      console.error("公開問題を更新できませんでした",error); return {ok:false,error};
+      console.error("公開問題を更新できませんでした",error);
+      return {ok:false,error};
     }
   }
 
@@ -1105,7 +1053,7 @@
       studyQueue: state.studyQueue.map(c => c.id),
       studyIndex: state.studyIndex,
       revealed: state.revealed,
-      studyProblemType: $("studyProblemType").value,
+      studySourceType: $("studySourceType").value,
       studyFilter: $("studyFilter").value,
       masteryFilter: $("masteryFilter").value,
       studyTag: $("studyTag").value,
@@ -1231,7 +1179,7 @@
     const filter = ($("cardListFilter") && $("cardListFilter").value) || "all";
     const sort = ($("cardListSort") && $("cardListSort").value) || "newest";
     let cards = state.cards.filter(card => {
-      const hay = [card.text, ...(card.tags || []), card.id, card.type === "long" ? "長文問題" : "短文問題"].join(" ").toLowerCase();
+      const hay = [card.text, ...(card.tags || []), card.id].join(" ").toLowerCase();
       const matchesQuery = !query || hay.includes(query);
       const mastery = Math.min(3, Math.max(0, card.masterCount || 0));
       return matchesQuery && (filter === "all" || mastery === Number(filter));
@@ -1276,7 +1224,6 @@
       meta.append(left,right);
       const q=document.createElement("div");q.className="q";q.innerHTML=escapeHtml(card.text).replace(/【[^】]+】/g,m=>`<code>${escapeHtml(m)}</code>`);
       const mRow=document.createElement("div");mRow.className="row";mRow.style.marginTop="8px";
-      const typePill=document.createElement("span");typePill.className=`pill typeBadge ${card.type === "long" ? "long" : "short"}`;typePill.textContent=card.type === "long" ? "長文問題" : "短文問題";mRow.appendChild(typePill);
       const mPill=document.createElement("span");mPill.className="pill";mPill.textContent=`${masteryLabel(card.masterCount||0)} / 最終: ${formatLastStudied(card)}`;mRow.appendChild(mPill);
       const tagRow=document.createElement("div");tagRow.className="row";tagRow.style.marginTop="10px";(card.tags||[]).slice(0,8).forEach(t=>{const p=document.createElement("span");p.className="pill";p.textContent=t;tagRow.appendChild(p);});
       item.append(meta,q,mRow); if((card.tags||[]).length)item.appendChild(tagRow); root.appendChild(item);
@@ -1303,7 +1250,6 @@
     state.selectedId = id;
     $("editorText").value = c.text;
     $("editorTags").value = (c.tags || []).join(", ");
-    $("problemType").value = c.type === "long" ? "long" : "short";
     $("gradingMode").value = c.gradingMode || "strict";
     previewFromEditor();
     logLine(`カードを読み込み: ${id}`);
@@ -1338,7 +1284,6 @@
     }
     const tags = parseTags($("editorTags").value);
     const gradingMode = $("gradingMode").value;
-    const type = $("problemType").value === "long" ? "long" : "short";
 
     // If selectedId set, update it; else create new
     if(state.selectedId){
@@ -1348,7 +1293,6 @@
         c.tags = tags;
         c.updatedAt = now();
         c.gradingMode = gradingMode;
-        c.type = type;
         save();
         logLine(`カード更新: ${c.id}`);
       }
@@ -1361,7 +1305,7 @@
         createdAt: now(),
         updatedAt: now(),
         gradingMode,
-        type,
+        type: "short",
         source: "local",
         masterCount: 0
       };
@@ -1372,7 +1316,6 @@
 
     $("editorText").value = "";
     $("editorTags").value = "";
-    $("problemType").value = "short";
     previewFromEditor(true);
   }
 
@@ -1530,24 +1473,14 @@
   });
 
    // ---------- Study ----------
-   function filterByProblemType(cards, selectedType){
-     if(selectedType === "short") return cards.filter(card => card.type !== "long");
-     if(selectedType === "long") return cards.filter(card => card.type === "long");
-     // All mode: if a short card duplicates a PDF-format long question, prefer the long question.
-     const availableLongIds = new Set();
-     cards.filter(card => card.type === "long").forEach(card => {
-       availableLongIds.add(String(card.id));
-       (card.partIds || []).forEach(id => availableLongIds.add(String(id)));
-     });
-     return cards.filter(card => {
-       if(card.type === "long") return true;
-       const parent = card.derivedFromQuestionId || card.derivedFrom || card.duplicateOf;
-       return !parent || !availableLongIds.has(String(parent));
-     });
+   function filterBySourceSet(cards, sourceSet){
+     if(sourceSet === "original") return cards.filter(card => card.sourceSet === "original" || card.source !== "public");
+     if(sourceSet === "derived") return cards.filter(card => card.sourceSet === "derived");
+     return cards;
    }
    function buildQueue(){
-     const selectedType = ["short","long","all"].includes($("studyProblemType").value) ? $("studyProblemType").value : "short";
-     let cards = filterByProblemType(state.cards.slice(), selectedType);
+     const sourceSet = ["all","original","derived"].includes($("studySourceType").value) ? $("studySourceType").value : "all";
+     let cards = filterBySourceSet(state.cards.slice(), sourceSet);
      const filter = $("studyFilter").value;
      if(filter === "tag"){
        const tag = $("studyTag").value.trim();
@@ -1600,7 +1533,6 @@
       return;
     }
     const card = state.studyQueue[state.studyIndex];
-    box.classList.toggle("longProblemBox", !!card && card.type === "long");
     if(!card){
       box.innerHTML = `<p class="quizQ muted">終了！お疲れさまでした。</p>`;
       $("btnPrev").disabled = state.studyIndex <= 0;
@@ -1612,22 +1544,6 @@
       $("finishWrong").disabled = state.studyWrongIds.size === 0;
       $("finishWrong").onclick = startWrongReview;
       return;
-    }
-    if(card.type === "long" && card.passage){
-      const context = document.createElement("section");
-      context.className = "panel longContext";
-      context.style.marginBottom = "18px";
-      const heading = document.createElement("div");
-      heading.className = "pill";
-      heading.textContent = card.groupTitle || "共通本文・資料";
-      const body = document.createElement("div");
-      body.style.whiteSpace = "pre-wrap";
-      body.style.lineHeight = "1.9";
-      body.style.marginTop = "10px";
-      body.textContent = card.passage;
-      context.appendChild(heading);
-      context.appendChild(body);
-      box.appendChild(context);
     }
     const parsed = parseCloze(card.text);
     const hasInputs = parsed.parts.some(part => part.type === "blank");
@@ -1642,7 +1558,7 @@
 
     parsed.parts.forEach(part => {
       if(part.type === "text"){
-        appendProblemText(q, part.value);
+        q.appendChild(document.createTextNode(part.value));
       }else{
         const wrap = document.createElement("span");
         wrap.className = "blank";
@@ -2010,7 +1926,7 @@
       $("btnStart").click();
       return;
     }
-     $("studyProblemType").value = ["short","long","all"].includes(session.studyProblemType) ? session.studyProblemType : "short";
+     $("studySourceType").value = ["all","original","derived"].includes(session.studySourceType) ? session.studySourceType : "all";
      $("studyFilter").value = session.studyFilter || "all";
      $("masteryFilter").value = session.masteryFilter || "all";
      $("studyTag").value = session.studyTag || "";
@@ -2071,7 +1987,7 @@
     return span.innerHTML;
   }
   function buildCardQueue(){
-    let cards = state.cards.filter(card => card.type !== "long");
+    let cards = state.cards.slice();
     const filter = $("cardFilter").value;
     if(filter === "tag"){
       const tag = $("cardTag").value.trim();
@@ -2109,28 +2025,19 @@
       const front = $("flashFront");
       const back = $("flashBack");
       if(!flash || !stage || !front || !back) return;
-
       const minimum = window.matchMedia("(max-width:560px)").matches ? 280 : 320;
-      const previousHeight = flash.style.height;
       flash.style.height = `${minimum}px`;
       stage.style.height = `${minimum}px`;
-
-      const frontHeight = front.scrollHeight;
-      const backHeight = back.scrollHeight;
-      const requiredHeight = Math.max(minimum, frontHeight, backHeight);
+      const requiredHeight = Math.max(minimum, front.scrollHeight, back.scrollHeight);
       const safeHeight = Number.isFinite(requiredHeight) ? Math.ceil(requiredHeight) : minimum;
-
       flash.style.height = `${safeHeight}px`;
       stage.style.height = `${safeHeight}px`;
-      if(!previousHeight) flash.setAttribute("data-auto-height", "true");
     });
   }
-
   function scheduleFlashcardHeightUpdate(){
     updateFlashcardHeight();
     requestAnimationFrame(updateFlashcardHeight);
   }
-
   function renderFlashcard(){
     const total = state.cardQueue.length;
     const flash = $("flashcard");
@@ -2215,7 +2122,7 @@
 
   // ---------- Review mode ----------
   function getReviewCards(){
-    const bucket = $("reviewBucket").value; const tag = $("reviewTag").value.trim(); const type=["short","long","all"].includes($("reviewProblemType").value) ? $("reviewProblemType").value : "short"; let cards = filterByProblemType(state.cards.slice(), type);
+    const bucket = $("reviewBucket").value; const tag = $("reviewTag").value.trim(); const sourceSet=["all","original","derived"].includes($("reviewSourceType").value) ? $("reviewSourceType").value : "all"; let cards = filterBySourceSet(state.cards.slice(), sourceSet);
     if(tag) cards = cards.filter(c => (c.tags||[]).includes(tag));
     if(bucket === "due") cards = cards.filter(c => ["never","5+"].includes(reviewBucketOf(c))); else if(bucket !== "all") cards = cards.filter(c => reviewBucketOf(c) === bucket);
     const order = $("reviewOrder").value;
@@ -2230,9 +2137,9 @@
     if($("reviewSelectedCount")) $("reviewSelectedCount").textContent = `対象 ${getReviewCards().length} 枚`;
   }
   function startReviewStudy(){ const cards=getReviewCards(); if(cards.length===0){alert("復習対象のカードがありません。");return;} state.studyQueue=cards; state.studyIndex=0; state.revealed=false; clearSession(); activateTab("study"); renderStudy(); state.isStudying=true; updateStartEndButton(); logLine(`復習（入力学習）開始: ${cards.length}枚`); }
-  function startReviewCard(){ if($("reviewProblemType").value !== "short"){alert("カード式は短文問題専用です。問題形式を「短文問題」にするか、入力学習で復習してください。");return;} const cards=getReviewCards(); if(cards.length===0){alert("復習対象のカードがありません。");return;} state.cardQueue=cards; state.cardIndex=0; state.cardFlipped=false; activateTab("card"); renderFlashcard(); logLine(`復習（カード式）開始: ${cards.length}枚`); }
+  function startReviewCard(){ const cards=getReviewCards(); if(cards.length===0){alert("復習対象のカードがありません。");return;} state.cardQueue=cards; state.cardIndex=0; state.cardFlipped=false; activateTab("card"); renderFlashcard(); logLine(`復習（カード式）開始: ${cards.length}枚`); }
   $("btnReviewStudy").onclick=startReviewStudy; $("btnReviewCard").onclick=startReviewCard; $("btnReviewRefresh").onclick=updateReviewStats;
-  ["reviewProblemType","reviewBucket","reviewTag","reviewOrder"].forEach(id=>{ $(id).addEventListener("input", updateReviewStats); $(id).addEventListener("change", updateReviewStats); });
+  ["reviewSourceType","reviewBucket","reviewTag","reviewOrder"].forEach(id=>{ $(id).addEventListener("input", updateReviewStats); $(id).addEventListener("change", updateReviewStats); });
 
 
   // ---------- First-time tutorial ----------
@@ -2399,13 +2306,7 @@
       let arr = null;
       if(Array.isArray(parsed)) arr = parsed;
       else if(parsed && Array.isArray(parsed.cards)) arr = parsed.cards;
-      else if(parsed && Array.isArray(parsed.groups)) arr = flattenLongGroups(parsed.groups);
-      else if(parsed && Array.isArray(parsed.items)){
-        alert(`プリント専用問題を ${parsed.items.length} 件確認しました。プリント専用問題は学習カードへ取り込まず、data/print-only-questions.json として管理してください。`);
-        $("jsonIn").value = "";
-        return;
-      }
-      if(!arr) throw new Error("cards・groups・items のいずれの配列も見つかりません");
+      if(!arr) throw new Error("カード配列またはcards配列が見つかりません");
       // Basic validation
       const added = [];
       arr.forEach(x => {
@@ -2418,7 +2319,7 @@
           createdAt: x.createdAt || now(),
           updatedAt: now(),
           gradingMode: x.gradingMode || "strict",
-          type: x.type === "long" ? "long" : "short",
+          type: "short",
           source: "local",
           answerOrder: x.answerOrder === "unordered" ? "unordered" : "ordered",
           masterCount: typeof x.masterCount === 'number' ? x.masterCount : 0
@@ -2476,12 +2377,11 @@
   if(document.fonts?.ready){
     document.fonts.ready.then(scheduleFlashcardHeightUpdate).catch(() => {});
   }
-
   window.addEventListener("beforeunload", () => {
     saveSession();
   });
 
-  // 公開問題は data/questions.json から読み込みます。個人作成問題はlocalStorageに保存されます。
+  // 公開短文は2つのJSONから読み込みます。個人作成問題と学習状態はlocalStorageに保存されます。
 
   previewFromEditor(false);
   maybeShowTutorialWelcome();
