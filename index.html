@@ -401,7 +401,6 @@
            <button class="btn" id="btnStudyWrong" disabled>間違えた問題だけ復習</button>
            <span class="badge" id="progressBadge">0 / 0</span>
            <span class="badge timerBadge hidden" id="timerBadge">残り 0秒</span>
-           <button class="btn" id="btnFullscreen" type="button">全画面表示</button>
          </div>
 
         <div class="divider"></div>
@@ -584,11 +583,6 @@
             <option value="0">使用しない</option><option value="10">10秒</option><option value="20">20秒</option><option value="30">30秒</option><option value="60">60秒</option><option value="120">120秒</option>
           </select>
           <div class="small muted" style="margin-top:8px">時間切れになると、その時点の入力内容で自動採点します。</div>
-        </div>
-        <div class="settingCard">
-          <h3>全画面表示</h3>
-          <button class="btn primary" id="btnFullscreenSettings" type="button">全画面表示を切り替える</button>
-          <div class="small muted" style="margin-top:8px">ブラウザが全画面APIに対応している場合に使用できます。</div>
         </div>
         <div class="settingCard">
           <h3>問題報告</h3>
@@ -2127,11 +2121,6 @@
     state.timerRemaining=seconds; const badge=$("timerBadge"); badge.classList.remove("hidden","timerDanger"); badge.textContent=`残り ${state.timerRemaining}秒`;
     state.timerId=setInterval(()=>{ state.timerRemaining--; badge.textContent=`残り ${Math.max(0,state.timerRemaining)}秒`; badge.classList.toggle("timerDanger",state.timerRemaining<=5); if(state.timerRemaining<=0){stopQuestionTimer();gradeCurrent(false);}},1000);
   }
-  async function toggleFullscreen(){
-    try{ if(!document.fullscreenElement){await document.documentElement.requestFullscreen();}else{await document.exitFullscreen();} }catch{alert("このブラウザでは全画面表示を開始できませんでした。");}
-  }
-  $("btnFullscreen").onclick=toggleFullscreen; $("btnFullscreenSettings").onclick=toggleFullscreen;
-  document.addEventListener("fullscreenchange",()=>{const text=document.fullscreenElement?"全画面を終了":"全画面表示";$("btnFullscreen").textContent=text;$("btnFullscreenSettings").textContent=text+"を切り替える";});
   function toggleFavorite(cardId){
     const card=state.cards.find(c=>c.id===cardId); if(!card)return; card.tags=Array.isArray(card.tags)?card.tags:[];
     const i=card.tags.indexOf("お気に入り"); if(i>=0)card.tags.splice(i,1);else card.tags.push("お気に入り"); save(); renderStudy({preserveReveal:true,inputValues:getStudyInputValues(),skipSave:true});
