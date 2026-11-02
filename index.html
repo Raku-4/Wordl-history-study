@@ -359,6 +359,14 @@
         <div class="divider"></div>
 
         <div class="row">
+          <div style="min-width:190px;">
+            <label>問題の由来</label>
+            <label for="studySourceType"></label><select id="studySourceType">
+              <option value="all">すべての短文</option>
+              <option value="original">通常短文</option>
+              <option value="derived">プリント由来の短文</option>
+            </select>
+          </div>
           <div style="flex:1;">
             <label>出題範囲</label>
             <label for="studyFilter"></label><select id="studyFilter">
@@ -431,6 +439,7 @@
       <div class="panel">
         <h2>カード式（タップで裏面表示）</h2>
         <div class="muted">
+          
           表面は問題文、裏面は答えです。カードをタップ/クリックすると、くるっと回って答えが見えます。<br>
           <span class="kbd">←</span> <span class="kbd">→</span> で前後移動、<span class="kbd">Space</span> または <span class="kbd">Enter</span> で表裏を切り替えられます。
         </div>
@@ -508,7 +517,7 @@
     <div class="grid"><div class="panel"><h2>復習（最後に解いた日から自動分類）</h2>
       <div class="muted">学習で採点した時、またはカード式で裏面を見た時に「最後に解いた日時」を記録します。<br>分類は <b>未学習</b> / <b>0〜1日前</b> / <b>2〜4日前</b> / <b>5日以上前</b> です。</div>
       <div class="divider"></div><div class="reviewGrid" id="reviewStats"></div><div class="divider"></div>
-      <div class="row"><div style="flex:1;"><label>復習対象</label><label for="reviewBucket"></label><select id="reviewBucket"><option value="due">おすすめ（未学習 + 5日以上前）</option><option value="never">未学習</option><option value="0-1">0〜1日前</option><option value="2-4">2〜4日前</option><option value="5+">5日以上前</option><option value="all">すべて</option></select></div>
+      <div class="row"><div style="min-width:190px;"><label>問題の由来</label><label for="reviewSourceType"></label><select id="reviewSourceType"><option value="all">すべての短文</option><option value="original">通常短文</option><option value="derived">プリント由来の短文</option></select></div><div style="flex:1;"><label>復習対象</label><label for="reviewBucket"></label><select id="reviewBucket"><option value="due">おすすめ（未学習 + 5日以上前）</option><option value="never">未学習</option><option value="0-1">0〜1日前</option><option value="2-4">2〜4日前</option><option value="5+">5日以上前</option><option value="all">すべて</option></select></div>
       <div style="flex:1;"><label>タグ（任意）</label><label for="reviewTag"></label><input type="text" id="reviewTag" placeholder="例：ギリシア" /></div>
       <div style="min-width:180px;"><label>順番</label><label for="reviewOrder"></label><select id="reviewOrder"><option value="oldest">古い順</option><option value="shuffle">シャッフル</option><option value="inorder">登録順</option></select></div></div>
       <div class="row" style="margin-top:10px;"><button class="btn primary reviewStrong" id="btnReviewStudy">入力学習で復習</button><button class="btn primary reviewStrong" id="btnReviewCard">カード式で復習</button><button class="btn" id="btnReviewRefresh">集計更新</button><span class="badge" id="reviewSelectedCount">対象 0 枚</span></div>
@@ -614,6 +623,7 @@
         <p><code>【先史時代】とは、【文字】が発明される前の時代である。 #歴史概論 #時代区分</code></p>
         <p><b>Tab区切り：</b> 本文の後ろをTabで区切ると、タグをカンマ区切りで指定できます。</p>
         <p><code>約240万年前ごろに現れた【原人】は、【火】を使用した。　歴史概論, 人類の進化</code></p>
+        <p><b>問題の由来：</b> 通常短文、プリント由来の短文、すべての短文を切り替えられます。</p>
         <p><b>カード式：</b> 表面に穴埋め化された問題文、裏面に答えを表示します。クリック/タップで表裏を切り替え、矢印ボタンやキーボードの左右キーで移動できます。</p>
         <p><b>復習：</b> 学習で採点した時、またはカード式で裏面を見た時に最終学習日時を記録し、未学習・0〜1日前・2〜4日前・5日以上前に分類して復習できます。</p>
         <p><button class="btn primary" id="btnShowTutorial" type="button">チュートリアルをもう一度見る</button></p>
@@ -652,7 +662,10 @@
   const LS_SETTINGS = "ankimaker_like_settings_v1";
   const LS_REPORTS = "ankimaker_like_reports_v1";
   const LS_PUBLIC_VERSION = "ankimaker_public_questions_version_v1";
-  const PUBLIC_QUESTIONS_URL = "./data/questions.json";
+  const PUBLIC_DATA_URLS = {
+    original: "./data/original-questions.json",
+    derived: "./data/derived-short-questions.json"
+  };
   const $ = (id) => document.getElementById(id);
 
   const state = {
@@ -881,6 +894,10 @@
         changed = true;
       }
 
+      if(card.type !== "short"){
+        card.type = "short";
+        changed = true;
+      }
       if(!card.gradingMode){
         card.gradingMode = "strict";
         changed = true;
@@ -911,8 +928,11 @@
       text: String(publicCard.text || ""),
       tags,
       source: "public",
+      type: "short",
       gradingMode: publicCard.gradingMode || "strict",
       answerOrder: publicCard.answerOrder || "ordered",
+      duplicateOf: publicCard.duplicateOf || null,
+      derivedFrom: publicCard.derivedFrom || null,
       createdAt: previous?.createdAt || publicCard.createdAt || now(),
       updatedAt: publicCard.updatedAt || now(),
       masterCount: Number.isFinite(previous?.masterCount) ? previous.masterCount : 0,
@@ -922,47 +942,46 @@
     };
   }
 
+  async function fetchPublicJson(url){
+    const response = await fetch(`${url}?v=${Date.now()}`, {cache:"no-store"});
+    if(!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+    return response.json();
+  }
   async function syncPublicQuestions(){
     const status = $("publicDataStatus");
     try{
-      const response = await fetch(`${PUBLIC_QUESTIONS_URL}?v=${Date.now()}`, {cache:"no-store"});
-      if(!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      if(!data || !Array.isArray(data.cards)) throw new Error("cards配列がありません");
-      const version = String(data.version ?? data.updatedAt ?? "unknown");
+      const [originalData, derivedData] = await Promise.all([
+        fetchPublicJson(PUBLIC_DATA_URLS.original),
+        fetchPublicJson(PUBLIC_DATA_URLS.derived)
+      ]);
+      if(!Array.isArray(originalData.cards)) throw new Error("original-questions.json に cards 配列がありません");
+      if(!Array.isArray(derivedData.cards)) throw new Error("derived-short-questions.json に cards 配列がありません");
+      const incoming = [
+        ...originalData.cards.map(card => ({...card, sourceSet:"original", type:"short"})),
+        ...derivedData.cards.map(card => ({...card, sourceSet:"derived", type:"short"}))
+      ];
       const ids = new Set();
-      for(const card of data.cards){
-        if(!card || !card.id || typeof card.text !== "string") throw new Error("idまたはtextがない公開問題があります");
-        const id = String(card.id);
+      for(const card of incoming){
+        if(!card?.id || typeof card.text !== "string") throw new Error("idまたはtextがない公開問題があります");
+        const id=String(card.id);
         if(ids.has(id)) throw new Error(`問題IDが重複しています: ${id}`);
         ids.add(id);
       }
-      const previousById = new Map(state.cards.map(card => [String(card.id), card]));
-      const localCards = state.cards.filter(card => card.source !== "public" && !ids.has(String(card.id)));
-      const publicCards = data.cards.map(card => publicCardForStorage(card, previousById.get(String(card.id))));
-      const previousPublicIds = new Set(state.cards.filter(card => card.source === "public").map(card => String(card.id)));
-      const added = publicCards.filter(card => !previousById.has(card.id)).length;
-      const removed = [...previousPublicIds].filter(id => !ids.has(id)).length;
-      const changed = publicCards.filter(card => {
-        const old = previousById.get(card.id);
-        if(!old) return false;
-        const oldPublicTags = (old.tags || []).filter(tag => tag !== "お気に入り");
-        const newPublicTags = (card.tags || []).filter(tag => tag !== "お気に入り");
-        return old.text !== card.text || old.gradingMode !== card.gradingMode || old.answerOrder !== card.answerOrder || JSON.stringify(oldPublicTags) !== JSON.stringify(newPublicTags);
-      }).length;
-      state.cards = [...publicCards, ...localCards];
+      const previousById=new Map(state.cards.map(card=>[String(card.id),card]));
+      const publicCards=incoming.map(card=>publicCardForStorage(card,previousById.get(String(card.id))));
+      incoming.forEach((src,i)=>{ publicCards[i].sourceSet=src.sourceSet; });
+      const localCards=state.cards.filter(card=>card.source !== "public" && !ids.has(String(card.id)));
+      state.cards=[...publicCards,...localCards];
       ensureCardMetadata();
-      localStorage.setItem(LS_KEY, JSON.stringify(state.cards));
-      localStorage.setItem(LS_PUBLIC_VERSION, version);
-      if(status) status.textContent = `公開問題 v${version} / ${publicCards.length}問`;
-      if(added || changed || removed){
-        logLine(`公開問題更新: 追加${added} / 修正${changed} / 削除${removed}`);
-      }
-      return {ok:true, version, added, changed, removed};
+      localStorage.setItem(LS_KEY,JSON.stringify(state.cards));
+      const version=Math.max(Number(originalData.version)||0,Number(derivedData.version)||0);
+      localStorage.setItem(LS_PUBLIC_VERSION,String(version));
+      if(status) status.textContent=`公開問題 v${version} / 短文${publicCards.length}問`;
+      return {ok:true,version};
     }catch(error){
-      if(status) status.textContent = "公開問題の取得失敗・保存済みデータを使用";
-      console.error("公開問題を更新できませんでした", error);
-      return {ok:false, error};
+      if(status) status.textContent="公開問題の取得失敗・保存済みデータを使用";
+      console.error("公開問題を更新できませんでした",error);
+      return {ok:false,error};
     }
   }
 
@@ -1017,6 +1036,7 @@
       studyQueue: state.studyQueue.map(c => c.id),
       studyIndex: state.studyIndex,
       revealed: state.revealed,
+      studySourceType: $("studySourceType").value,
       studyFilter: $("studyFilter").value,
       masteryFilter: $("masteryFilter").value,
       studyTag: $("studyTag").value,
@@ -1268,6 +1288,8 @@
         createdAt: now(),
         updatedAt: now(),
         gradingMode,
+        type: "short",
+        source: "local",
         masterCount: 0
       };
       state.cards.push(card);
@@ -1345,6 +1367,8 @@
         createdAt: now(),
         updatedAt: now(),
         gradingMode,
+        type: "short",
+        source: "local",
         masterCount: 0
       };
       state.cards.push(card);
@@ -1432,8 +1456,14 @@
   });
 
    // ---------- Study ----------
+   function filterBySourceSet(cards, sourceSet){
+     if(sourceSet === "original") return cards.filter(card => card.sourceSet === "original" || card.source !== "public");
+     if(sourceSet === "derived") return cards.filter(card => card.sourceSet === "derived");
+     return cards;
+   }
    function buildQueue(){
-     let cards = state.cards.slice();
+     const sourceSet = ["all","original","derived"].includes($("studySourceType").value) ? $("studySourceType").value : "all";
+     let cards = filterBySourceSet(state.cards.slice(), sourceSet);
      const filter = $("studyFilter").value;
      if(filter === "tag"){
        const tag = $("studyTag").value.trim();
@@ -1879,6 +1909,7 @@
       $("btnStart").click();
       return;
     }
+     $("studySourceType").value = ["all","original","derived"].includes(session.studySourceType) ? session.studySourceType : "all";
      $("studyFilter").value = session.studyFilter || "all";
      $("masteryFilter").value = session.masteryFilter || "all";
      $("studyTag").value = session.studyTag || "";
@@ -2050,7 +2081,7 @@
 
   // ---------- Review mode ----------
   function getReviewCards(){
-    const bucket = $("reviewBucket").value; const tag = $("reviewTag").value.trim(); let cards = state.cards.slice();
+    const bucket = $("reviewBucket").value; const tag = $("reviewTag").value.trim(); const sourceSet=["all","original","derived"].includes($("reviewSourceType").value) ? $("reviewSourceType").value : "all"; let cards = filterBySourceSet(state.cards.slice(), sourceSet);
     if(tag) cards = cards.filter(c => (c.tags||[]).includes(tag));
     if(bucket === "due") cards = cards.filter(c => ["never","5+"].includes(reviewBucketOf(c))); else if(bucket !== "all") cards = cards.filter(c => reviewBucketOf(c) === bucket);
     const order = $("reviewOrder").value;
@@ -2067,7 +2098,7 @@
   function startReviewStudy(){ const cards=getReviewCards(); if(cards.length===0){alert("復習対象のカードがありません。");return;} state.studyQueue=cards; state.studyIndex=0; state.revealed=false; clearSession(); activateTab("study"); renderStudy(); state.isStudying=true; updateStartEndButton(); logLine(`復習（入力学習）開始: ${cards.length}枚`); }
   function startReviewCard(){ const cards=getReviewCards(); if(cards.length===0){alert("復習対象のカードがありません。");return;} state.cardQueue=cards; state.cardIndex=0; state.cardFlipped=false; activateTab("card"); renderFlashcard(); logLine(`復習（カード式）開始: ${cards.length}枚`); }
   $("btnReviewStudy").onclick=startReviewStudy; $("btnReviewCard").onclick=startReviewCard; $("btnReviewRefresh").onclick=updateReviewStats;
-  ["reviewBucket","reviewTag","reviewOrder"].forEach(id=>{ $(id).addEventListener("input", updateReviewStats); $(id).addEventListener("change", updateReviewStats); });
+  ["reviewSourceType","reviewBucket","reviewTag","reviewOrder"].forEach(id=>{ $(id).addEventListener("input", updateReviewStats); $(id).addEventListener("change", updateReviewStats); });
 
 
   // ---------- First-time tutorial ----------
@@ -2230,8 +2261,11 @@
       return;
     }
     try{
-      const arr = JSON.parse(raw);
-      if(!Array.isArray(arr)) throw new Error("配列ではありません");
+      const parsed = JSON.parse(raw);
+      let arr = null;
+      if(Array.isArray(parsed)) arr = parsed;
+      else if(parsed && Array.isArray(parsed.cards)) arr = parsed.cards;
+      if(!arr) throw new Error("カード配列またはcards配列が見つかりません");
       // Basic validation
       const added = [];
       arr.forEach(x => {
@@ -2244,6 +2278,8 @@
           createdAt: x.createdAt || now(),
           updatedAt: now(),
           gradingMode: x.gradingMode || "strict",
+          type: "short",
+          source: "local",
           answerOrder: x.answerOrder === "unordered" ? "unordered" : "ordered",
           masterCount: typeof x.masterCount === 'number' ? x.masterCount : 0
         };
@@ -2299,7 +2335,7 @@
     saveSession();
   });
 
-  // 公開問題は data/questions.json から読み込みます。個人作成問題はlocalStorageに保存されます。
+  // 公開短文は2つのJSONから読み込みます。個人作成問題と学習状態はlocalStorageに保存されます。
 
   previewFromEditor(false);
   maybeShowTutorialWelcome();
