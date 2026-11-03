@@ -382,7 +382,6 @@
               <option value="all">すべての短文</option>
               <option value="original">通常短文</option>
               <option value="derived">プリント由来の短文</option>
-              <option value="print-raw">プリントからの生抜き出し</option>
             </select>
           </div>
           <div style="flex:1;">
@@ -535,7 +534,7 @@
     <div class="grid"><div class="panel"><h2>復習（最後に解いた日から自動分類）</h2>
       <div class="muted">学習で採点した時、またはカード式で裏面を見た時に「最後に解いた日時」を記録します。<br>分類は <b>未学習</b> / <b>0〜1日前</b> / <b>2〜4日前</b> / <b>5日以上前</b> です。</div>
       <div class="divider"></div><div class="reviewGrid" id="reviewStats"></div><div class="divider"></div>
-      <div class="row"><div style="min-width:190px;"><label>問題の由来</label><label for="reviewSourceType"></label><select id="reviewSourceType"><option value="all">すべての短文</option><option value="original">通常短文</option><option value="derived">プリント由来の短文</option><option value="print-raw">プリントからの生抜き出し</option></select></div><div style="flex:1;"><label>復習対象</label><label for="reviewBucket"></label><select id="reviewBucket"><option value="due">おすすめ（未学習 + 5日以上前）</option><option value="never">未学習</option><option value="0-1">0〜1日前</option><option value="2-4">2〜4日前</option><option value="5+">5日以上前</option><option value="all">すべて</option></select></div>
+      <div class="row"><div style="min-width:190px;"><label>問題の由来</label><label for="reviewSourceType"></label><select id="reviewSourceType"><option value="all">すべての短文</option><option value="original">通常短文</option><option value="derived">プリント由来の短文</option></select></div><div style="flex:1;"><label>復習対象</label><label for="reviewBucket"></label><select id="reviewBucket"><option value="due">おすすめ（未学習 + 5日以上前）</option><option value="never">未学習</option><option value="0-1">0〜1日前</option><option value="2-4">2〜4日前</option><option value="5+">5日以上前</option><option value="all">すべて</option></select></div>
       <div style="flex:1;"><label>タグ（任意）</label><label for="reviewTag"></label><input type="text" id="reviewTag" placeholder="例：ギリシア" /></div>
       <div style="min-width:180px;"><label>順番</label><label for="reviewOrder"></label><select id="reviewOrder"><option value="oldest">古い順</option><option value="shuffle">シャッフル</option><option value="inorder">登録順</option></select></div></div>
       <div class="row" style="margin-top:10px;"><button class="btn primary reviewStrong" id="btnReviewStudy">入力学習で復習</button><button class="btn primary reviewStrong" id="btnReviewCard">カード式で復習</button><button class="btn" id="btnReviewRefresh">集計更新</button><span class="badge" id="reviewSelectedCount">対象 0 枚</span></div>
@@ -588,6 +587,11 @@
         <div class="settingCard">
           <h3>効果音設定</h3>
           <label class="switchRow"><input type="checkbox" id="settingSound"> 正解・不正解の効果音を鳴らす</label>
+        </div>
+        <div class="settingCard">
+          <h3>前回の学習の再開確認</h3>
+          <label class="switchRow"><input type="checkbox" id="settingAskResume"> 学習開始時に「前回の続きから始めますか？」と確認する</label>
+          <div class="small muted" style="margin-top:8px">オフの場合は確認を表示せず、新しい学習を開始します。「続きから」ボタンによる手動再開は利用できます。</div>
         </div>
         <div class="settingCard">
           <h3>採点後のEnterキー</h3>
@@ -682,8 +686,7 @@
   const LS_PUBLIC_VERSION = "ankimaker_public_questions_version_v1";
   const PUBLIC_DATA_URLS = {
     original: "./data/original-questions.json",
-    derived: "./data/derived-short-questions.json",
-    printRaw: "./data/print-raw-questions.json"
+    derived: "./data/derived-short-questions.json"
   };
   const $ = (id) => document.getElementById(id);
 
@@ -703,7 +706,7 @@
     studyWrongIds: new Set(),
     lastRemoved: null,
     appMode: localStorage.getItem("ankimaker_app_mode_v1") || "learner",
-    settings: {sound:true, enterAfterGrade:"next", answerAfterGrade:"small", timeLimit:0},
+    settings: {sound:true, enterAfterGrade:"next", answerAfterGrade:"small", timeLimit:0, askResume:false},
     reports: [],
     reportCardId: null,
     timerId: null,
@@ -969,18 +972,15 @@
   async function syncPublicQuestions(){
     const status = $("publicDataStatus");
     try{
-      const [originalData, derivedData, printRawData] = await Promise.all([
+      const [originalData, derivedData] = await Promise.all([
         fetchPublicJson(PUBLIC_DATA_URLS.original),
-        fetchPublicJson(PUBLIC_DATA_URLS.derived),
-        fetchPublicJson(PUBLIC_DATA_URLS.printRaw)
+        fetchPublicJson(PUBLIC_DATA_URLS.derived)
       ]);
       if(!Array.isArray(originalData.cards)) throw new Error("original-questions.json に cards 配列がありません");
       if(!Array.isArray(derivedData.cards)) throw new Error("derived-short-questions.json に cards 配列がありません");
-      if(!Array.isArray(printRawData.cards)) throw new Error("print-raw-questions.json に cards 配列がありません");
       const incoming = [
         ...originalData.cards.map(card => ({...card, sourceSet:"original", type:"short"})),
-        ...derivedData.cards.map(card => ({...card, sourceSet:"derived", type:"short"})),
-        ...printRawData.cards.map(card => ({...card, sourceSet:"print-raw", type:"short"}))
+        ...derivedData.cards.map(card => ({...card, sourceSet:"derived", type:"short"}))
       ];
       const ids = new Set();
       for(const card of incoming){
@@ -1481,11 +1481,10 @@
    function filterBySourceSet(cards, sourceSet){
      if(sourceSet === "original") return cards.filter(card => card.sourceSet === "original" || card.source !== "public");
      if(sourceSet === "derived") return cards.filter(card => card.sourceSet === "derived");
-     if(sourceSet === "print-raw") return cards.filter(card => card.sourceSet === "print-raw");
      return cards;
    }
    function buildQueue(){
-     const sourceSet = ["all","original","derived","print-raw"].includes($("studySourceType").value) ? $("studySourceType").value : "all";
+     const sourceSet = ["all","original","derived"].includes($("studySourceType").value) ? $("studySourceType").value : "all";
      let cards = filterBySourceSet(state.cards.slice(), sourceSet);
      const filter = $("studyFilter").value;
      if(filter === "tag"){
@@ -1898,7 +1897,7 @@
     // 開始時に前回履歴を確認
     const session = loadSession();
 
-    if(session && session.studyQueue && session.studyQueue.length > 0){
+    if(state.settings.askResume && session && session.studyQueue && session.studyQueue.length > 0){
       const resume = confirm("前回の続きから始めますか？");
 
       if(resume){
@@ -2128,7 +2127,7 @@
 
   // ---------- Review mode ----------
   function getReviewCards(){
-    const bucket = $("reviewBucket").value; const tag = $("reviewTag").value.trim(); const sourceSet=["all","original","derived","print-raw"].includes($("reviewSourceType").value) ? $("reviewSourceType").value : "all"; let cards = filterBySourceSet(state.cards.slice(), sourceSet);
+    const bucket = $("reviewBucket").value; const tag = $("reviewTag").value.trim(); const sourceSet=["all","original","derived"].includes($("reviewSourceType").value) ? $("reviewSourceType").value : "all"; let cards = filterBySourceSet(state.cards.slice(), sourceSet);
     if(tag) cards = cards.filter(c => (c.tags||[]).includes(tag));
     if(bucket === "due") cards = cards.filter(c => ["never","5+"].includes(reviewBucketOf(c))); else if(bucket !== "all") cards = cards.filter(c => reviewBucketOf(c) === bucket);
     const order = $("reviewOrder").value;
@@ -2244,6 +2243,7 @@
     try{ state.settings = {...state.settings, ...JSON.parse(localStorage.getItem(LS_SETTINGS) || "{}")}; }catch{}
     try{ state.reports = JSON.parse(localStorage.getItem(LS_REPORTS) || "[]"); if(!Array.isArray(state.reports)) state.reports=[]; }catch{ state.reports=[]; }
     $("settingSound").checked = !!state.settings.sound;
+    $("settingAskResume").checked = !!state.settings.askResume;
     const enter = document.querySelector(`input[name="enterAfterGrade"][value="${state.settings.enterAfterGrade}"]`); if(enter) enter.checked=true;
     const answer = document.querySelector(`input[name="answerAfterGrade"][value="${state.settings.answerAfterGrade}"]`); if(answer) answer.checked=true;
     $("settingTimeLimit").value = String(state.settings.timeLimit || 0);
@@ -2251,6 +2251,7 @@
   }
   function saveFeatureSettings(){ localStorage.setItem(LS_SETTINGS, JSON.stringify(state.settings)); }
   $("settingSound").addEventListener("change", e => { state.settings.sound=e.target.checked; saveFeatureSettings(); });
+  $("settingAskResume").addEventListener("change", e => { state.settings.askResume=e.target.checked; saveFeatureSettings(); });
   document.querySelectorAll('input[name="enterAfterGrade"]').forEach(el => el.addEventListener("change", e => { state.settings.enterAfterGrade=e.target.value; saveFeatureSettings(); }));
   document.querySelectorAll('input[name="answerAfterGrade"]').forEach(el => el.addEventListener("change", e => {
     state.settings.answerAfterGrade=e.target.value;
