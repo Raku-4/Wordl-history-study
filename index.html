@@ -382,6 +382,7 @@
               <option value="all">すべての短文</option>
               <option value="original">通常短文</option>
               <option value="derived">プリント由来の短文</option>
+              <option value="print-raw">プリントからの生抜き出し</option>
             </select>
           </div>
           <div style="flex:1;">
@@ -534,7 +535,7 @@
     <div class="grid"><div class="panel"><h2>復習（最後に解いた日から自動分類）</h2>
       <div class="muted">学習で採点した時、またはカード式で裏面を見た時に「最後に解いた日時」を記録します。<br>分類は <b>未学習</b> / <b>0〜1日前</b> / <b>2〜4日前</b> / <b>5日以上前</b> です。</div>
       <div class="divider"></div><div class="reviewGrid" id="reviewStats"></div><div class="divider"></div>
-      <div class="row"><div style="min-width:190px;"><label>問題の由来</label><label for="reviewSourceType"></label><select id="reviewSourceType"><option value="all">すべての短文</option><option value="original">通常短文</option><option value="derived">プリント由来の短文</option></select></div><div style="flex:1;"><label>復習対象</label><label for="reviewBucket"></label><select id="reviewBucket"><option value="due">おすすめ（未学習 + 5日以上前）</option><option value="never">未学習</option><option value="0-1">0〜1日前</option><option value="2-4">2〜4日前</option><option value="5+">5日以上前</option><option value="all">すべて</option></select></div>
+      <div class="row"><div style="min-width:190px;"><label>問題の由来</label><label for="reviewSourceType"></label><select id="reviewSourceType"><option value="all">すべての短文</option><option value="original">通常短文</option><option value="derived">プリント由来の短文</option><option value="print-raw">プリントからの生抜き出し</option></select></div><div style="flex:1;"><label>復習対象</label><label for="reviewBucket"></label><select id="reviewBucket"><option value="due">おすすめ（未学習 + 5日以上前）</option><option value="never">未学習</option><option value="0-1">0〜1日前</option><option value="2-4">2〜4日前</option><option value="5+">5日以上前</option><option value="all">すべて</option></select></div>
       <div style="flex:1;"><label>タグ（任意）</label><label for="reviewTag"></label><input type="text" id="reviewTag" placeholder="例：ギリシア" /></div>
       <div style="min-width:180px;"><label>順番</label><label for="reviewOrder"></label><select id="reviewOrder"><option value="oldest">古い順</option><option value="shuffle">シャッフル</option><option value="inorder">登録順</option></select></div></div>
       <div class="row" style="margin-top:10px;"><button class="btn primary reviewStrong" id="btnReviewStudy">入力学習で復習</button><button class="btn primary reviewStrong" id="btnReviewCard">カード式で復習</button><button class="btn" id="btnReviewRefresh">集計更新</button><span class="badge" id="reviewSelectedCount">対象 0 枚</span></div>
@@ -681,7 +682,8 @@
   const LS_PUBLIC_VERSION = "ankimaker_public_questions_version_v1";
   const PUBLIC_DATA_URLS = {
     original: "./data/original-questions.json",
-    derived: "./data/derived-short-questions.json"
+    derived: "./data/derived-short-questions.json",
+    printRaw: "./data/print-raw-questions.json"
   };
   const $ = (id) => document.getElementById(id);
 
@@ -967,15 +969,18 @@
   async function syncPublicQuestions(){
     const status = $("publicDataStatus");
     try{
-      const [originalData, derivedData] = await Promise.all([
+      const [originalData, derivedData, printRawData] = await Promise.all([
         fetchPublicJson(PUBLIC_DATA_URLS.original),
-        fetchPublicJson(PUBLIC_DATA_URLS.derived)
+        fetchPublicJson(PUBLIC_DATA_URLS.derived),
+        fetchPublicJson(PUBLIC_DATA_URLS.printRaw)
       ]);
       if(!Array.isArray(originalData.cards)) throw new Error("original-questions.json に cards 配列がありません");
       if(!Array.isArray(derivedData.cards)) throw new Error("derived-short-questions.json に cards 配列がありません");
+      if(!Array.isArray(printRawData.cards)) throw new Error("print-raw-questions.json に cards 配列がありません");
       const incoming = [
         ...originalData.cards.map(card => ({...card, sourceSet:"original", type:"short"})),
-        ...derivedData.cards.map(card => ({...card, sourceSet:"derived", type:"short"}))
+        ...derivedData.cards.map(card => ({...card, sourceSet:"derived", type:"short"})),
+        ...printRawData.cards.map(card => ({...card, sourceSet:"print-raw", type:"short"}))
       ];
       const ids = new Set();
       for(const card of incoming){
@@ -1476,10 +1481,11 @@
    function filterBySourceSet(cards, sourceSet){
      if(sourceSet === "original") return cards.filter(card => card.sourceSet === "original" || card.source !== "public");
      if(sourceSet === "derived") return cards.filter(card => card.sourceSet === "derived");
+     if(sourceSet === "print-raw") return cards.filter(card => card.sourceSet === "print-raw");
      return cards;
    }
    function buildQueue(){
-     const sourceSet = ["all","original","derived"].includes($("studySourceType").value) ? $("studySourceType").value : "all";
+     const sourceSet = ["all","original","derived","print-raw"].includes($("studySourceType").value) ? $("studySourceType").value : "all";
      let cards = filterBySourceSet(state.cards.slice(), sourceSet);
      const filter = $("studyFilter").value;
      if(filter === "tag"){
@@ -1926,7 +1932,7 @@
       $("btnStart").click();
       return;
     }
-     $("studySourceType").value = ["all","original","derived"].includes(session.studySourceType) ? session.studySourceType : "all";
+     $("studySourceType").value = ["all","original","derived","print-raw"].includes(session.studySourceType) ? session.studySourceType : "all";
      $("studyFilter").value = session.studyFilter || "all";
      $("masteryFilter").value = session.masteryFilter || "all";
      $("studyTag").value = session.studyTag || "";
@@ -2122,7 +2128,7 @@
 
   // ---------- Review mode ----------
   function getReviewCards(){
-    const bucket = $("reviewBucket").value; const tag = $("reviewTag").value.trim(); const sourceSet=["all","original","derived"].includes($("reviewSourceType").value) ? $("reviewSourceType").value : "all"; let cards = filterBySourceSet(state.cards.slice(), sourceSet);
+    const bucket = $("reviewBucket").value; const tag = $("reviewTag").value.trim(); const sourceSet=["all","original","derived","print-raw"].includes($("reviewSourceType").value) ? $("reviewSourceType").value : "all"; let cards = filterBySourceSet(state.cards.slice(), sourceSet);
     if(tag) cards = cards.filter(c => (c.tags||[]).includes(tag));
     if(bucket === "due") cards = cards.filter(c => ["never","5+"].includes(reviewBucketOf(c))); else if(bucket !== "all") cards = cards.filter(c => reviewBucketOf(c) === bucket);
     const order = $("reviewOrder").value;
